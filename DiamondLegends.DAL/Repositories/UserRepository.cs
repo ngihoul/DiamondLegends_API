@@ -18,16 +18,16 @@ namespace DiamondLegends.DAL.Repositories
         {
             await _connection.OpenAsync();
 
-            User newUser = _connection.QuerySingle<User>(
+            user.Id = _connection.QuerySingle<int>(
                 "INSERT INTO Users(Username, Email, Password, Salt, Nationality) " +
-                "OUTPUT INSERTED.* " +
+                "OUTPUT INSERTED.Id " +
                 "VALUES (@Username, @Email, @Password, @Salt, @Nationality)", 
-                user
+                new { user.Username, user.Email, user.Password, user.Salt, Nationality = user.Nationality.Id }
             );
 
             await _connection.CloseAsync();
 
-            return newUser;
+            return user;
         }
     }
 }

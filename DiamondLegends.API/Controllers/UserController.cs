@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiamondLegends.API.Controllers
 {
+    [Route("api")]
     [ApiController]
     public class UserController : ControllerBase
     {
