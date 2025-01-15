@@ -11,4 +11,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DiamondLegends.BLL\DiamondLegends.BLL.csproj" />
+    <ProjectReference Include="..\DiamondLegends.Domain\DiamondLegends.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
