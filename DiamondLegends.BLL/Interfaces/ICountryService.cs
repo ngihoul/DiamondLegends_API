@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondLegends.DAL.Interfaces
+namespace DiamondLegends.BLL.Interfaces
 {
-    public interface ICountryRepository
+    public interface ICountryService
     {
         public Task<IEnumerable<Country>> GetAll();
-        public Task<Country> GetById(int id);
     }
 }

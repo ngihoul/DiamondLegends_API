@@ -19,6 +19,19 @@ namespace DiamondLegends.DAL.Repositories
             _connection = connection;
         }
 
+        public async Task<IEnumerable<Country>> GetAll()
+        {
+            await _connection.OpenAsync();
+
+            IEnumerable<Country> countries = _connection.Query<Country>(
+                "SELECT * FROM Countries"
+            );
+
+            await _connection.CloseAsync();
+
+            return countries;
+        }
+
         public async Task<Country> GetById(int id)
         {
             await _connection.OpenAsync();

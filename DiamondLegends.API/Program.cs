@@ -1,3 +1,4 @@
+using CheckMate.BLL.Services;
 using DiamondLegends.BLL.Interfaces;
 using DiamondLegends.BLL.Services;
 using DiamondLegends.DAL.Interfaces;
@@ -18,6 +19,21 @@ builder.Services.AddTransient<SqlConnection>(c => new SqlConnection(builder.Conf
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddScoped<ICountryRepository, CountryRepository>();
+builder.Services.AddScoped<ICountryService, CountryService>();
+
+builder.Services.AddScoped<AuthService>();
+
+builder.Services.AddCors(service =>
+{
+    service.AddPolicy("Angular_Front", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000");
+        policy.AllowAnyMethod();
+        policy.AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,6 +44,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("Angular_Front");
 
 app.UseAuthorization();
 
