@@ -7,8 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
     <Folder Include="Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiamondLegends.Domain\DiamondLegends.Domain.csproj" />
   </ItemGroup>
 
 </Project>
