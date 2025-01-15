@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DiamondLegends.DAL\DiamondLegends.DAL.csproj" />
     <ProjectReference Include="..\DiamondLegends.Domain\DiamondLegends.Domain.csproj" />
   </ItemGroup>
