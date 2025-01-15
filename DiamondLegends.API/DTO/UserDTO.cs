@@ -7,7 +7,7 @@ namespace DiamondLegends.API.DTO
         public int Id { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
-        public Country Nationality { get; set; }
+        public string Nationality { get; set; }
     }
 
     public class UserRegistrationForm
@@ -16,6 +16,6 @@ namespace DiamondLegends.API.DTO
         public string Email { get; set; }
         public string Password { get; set; }
         public string Salt { get; set; }
-        public Country Nationality { get; set; }
+        public int NationalityId { get; set; }
     }
 }

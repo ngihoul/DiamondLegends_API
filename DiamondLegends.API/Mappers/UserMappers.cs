@@ -22,7 +22,7 @@ namespace DiamondLegends.API.Mappers
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                Nationality = user.Nationality
+                Nationality = user.Nationality.Name
             };
         }
     }

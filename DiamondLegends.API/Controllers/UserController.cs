@@ -29,7 +29,7 @@ namespace DiamondLegends.API.Controllers
                 throw new ArgumentNullException("Données invalides");
             }
 
-            User user = await _userService.Create(userForm.ToUser());
+            User user = await _userService.Create(userForm.ToUser(), userForm.NationalityId);
 
             return Ok(user.ToView());
         }

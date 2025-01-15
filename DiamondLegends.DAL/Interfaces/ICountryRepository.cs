@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondLegends.BLL.Interfaces
+namespace DiamondLegends.DAL.Interfaces
 {
-    public interface IUserService
+    public interface ICountryRepository
     {
-        public Task<User> Create(User user, int countryId);
+        public Task<Country> GetById(int id);
     }
 }
