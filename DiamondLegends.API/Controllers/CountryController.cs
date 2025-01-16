@@ -1,9 +1,7 @@
 ﻿using DiamondLegends.BLL.Interfaces;
 using DiamondLegends.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 
 namespace DiamondLegends.API.Controllers
 {
