@@ -1,4 +1,5 @@
 ﻿using DiamondLegends.Domain.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace DiamondLegends.API.DTO
 {
@@ -12,9 +13,22 @@ namespace DiamondLegends.API.DTO
 
     public class UserRegistrationForm
     {
+        [Required]
+        [MinLength(3)]
+        [MaxLength(120)]
         public string Username { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [MaxLength(250)]
         public string Email { get; set; }
+
+        [Required]
+        [RegularExpression(@"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")]
         public string Password { get; set; }
+
+        [Required]
+        [Range(1, 193)]
         public int NationalityId { get; set; }
     }
 }
