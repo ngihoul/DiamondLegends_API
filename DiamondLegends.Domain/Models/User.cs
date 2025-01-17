@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DiamondLegends.Domain.Models
+﻿namespace DiamondLegends.Domain.Models
 {
     public class User
     {
