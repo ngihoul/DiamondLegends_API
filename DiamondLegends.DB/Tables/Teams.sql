@@ -2,6 +2,7 @@
 (
 	[Id] INT IDENTITY,
 	[Name] NVARCHAR(250) NOT NULL,
+	[Owner] INT NOT NULL,
 	City NVARCHAR(120) NOT NULL,
 	Country INT NOT NULL,
 	League INT NOT NULL,
@@ -14,6 +15,7 @@
 	Color_3 NVARCHAR(6) DEFAULT 'FFFFFF',
 
 	CONSTRAINT PK_Teams PRIMARY KEY (Id),
+	CONSTRAINT FK_Teams_Users_Owner FOREIGN KEY (Owner) REFERENCES Users(Id),
 	CONSTRAINT UK_Teams_Name UNIQUE ([Name]),
 	CONSTRAINT FK_Teams_Countries_Country FOREIGN KEY (Country) REFERENCES Countries(Id),
 	CONSTRAINT FK_Teams_Leagues_League FOREIGN KEY (League) REFERENCES Leagues(Id),

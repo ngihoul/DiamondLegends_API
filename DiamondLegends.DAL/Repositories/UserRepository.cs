@@ -32,6 +32,7 @@ namespace DiamondLegends.DAL.Repositories
             return user;
         }
 
+        // TODO : tester si null est renvoyé ?!
         public async Task<User?> GetByUsername(string username)
         {
             await _connection.OpenAsync();
@@ -54,6 +55,7 @@ namespace DiamondLegends.DAL.Repositories
             return user;
         }
 
+        // TODO : tester si null est renvoyé ?!
         public async Task<User?> GetByEmail(string email)
         {
             await _connection.OpenAsync();
@@ -72,6 +74,29 @@ namespace DiamondLegends.DAL.Repositories
             User? user = results.FirstOrDefault();
 
             await _connection.CloseAsync();
+
+            return user;
+        }
+
+        // TODO : tester si null est renvoyé ?!
+        public async Task<User?> GetById(int id)
+        {
+            await _connection.OpenAsync();
+
+            var results = await _connection.QueryAsync<User?, Country?, User?>(
+                "SELECT * FROM Users WHERE Id = @Id",
+                (user, country) =>
+                {
+                    user.Nationality = country;
+                    return user;
+                },
+                new { Id = id },
+                splitOn: "Nationality"
+            );
+
+            await _connection.CloseAsync();
+
+            User? user = results.FirstOrDefault();
 
             return user;
         }

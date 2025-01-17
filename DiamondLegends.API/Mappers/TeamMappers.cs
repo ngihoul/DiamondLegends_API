@@ -5,14 +5,31 @@ namespace DiamondLegends.API.Mappers
 {
     public static class TeamMappers
     {
+        public static Team ToTeam(this TeamCreationForm teamForm)
+        {
+            return new Team()
+            {
+                Name = teamForm.Name,
+                City = teamForm.City,
+                Logo = teamForm.Logo,
+                Color_1 = teamForm.Color_1,
+                Color_2 = teamForm.Color_2,
+                Color_3 = teamForm.Color_3
+            };
+        }
         public static TeamView ToView(this Team team)
         {
             return new TeamView()
             {
                 Id = team.Id,
                 Name = team.Name,
+                Owner = team.Owner.ToView(),
                 City = team.City,
                 Country = team.Country.Name,
+                League = team.League.Name,
+                Season = team.Season,
+                CurrentDay = team.CurrentDay,
+                Budget = team.Budget,
                 Logo = team.Logo,
                 Color_1 = team.Color_1,
                 Color_2 = team.Color_2,
@@ -27,8 +44,10 @@ namespace DiamondLegends.API.Mappers
             {
                 Id = team.Id,
                 Name = team.Name,
+                Owner =team.Owner,
                 Country = team.Country.Name,
                 Logo = team.Logo,
+                season = team.Season
             };
         }
     }

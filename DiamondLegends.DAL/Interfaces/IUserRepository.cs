@@ -12,5 +12,6 @@ namespace DiamondLegends.DAL.Interfaces
         public Task<User> Create(User user);
         public Task<User?> GetByUsername(string username);
         public Task<User?> GetByEmail(string email);
+        public Task<User?> GetById(int id);
     }
 }

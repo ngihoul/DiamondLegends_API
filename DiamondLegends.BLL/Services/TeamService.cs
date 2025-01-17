@@ -1,24 +1,34 @@
 ﻿using DiamondLegends.BLL.Interfaces;
+using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondLegends.BLL.Services
 {
     public class TeamService : ITeamService
     {
         private readonly ITeamRepository _teamRepository;
+        private readonly IUserRepository _userRepository;
 
-        public TeamService(ITeamRepository teamRepository)
+        public TeamService(ITeamRepository teamRepository, IUserRepository userRepository)
         {
             _teamRepository = teamRepository;
+            _userRepository = userRepository;
         }
 
-        public Task<Team> Create(Team team)
+        public async Task<Team> Create(Team team, int userId)
         {
+            // Add Owner = Use HttpContext and pass in parameters
+            User? user = await _userRepository.GetById(userId);
+
+            if(user is null)
+            {
+                throw new ArgumentException("Cet utilisateur n'existe pas");
+            }
+
+            // Create & Link to a League
+            // Create Oponnents & link them to the League
+            // Init Season = currentYear
+            // Init CurrentDay & Budget = automatic ?
             throw new NotImplementedException();
         }
 

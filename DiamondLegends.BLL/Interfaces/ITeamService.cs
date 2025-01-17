@@ -6,6 +6,6 @@ namespace DiamondLegends.BLL.Interfaces
     {
         public Task<Team> Get(int id);
         public Task<IEnumerable<Team>> GetAllByUser(int userId);
-        public Task<Team> Create(Team team);
+        public Task<Team> Create(Team team, int userId);
     }
 }

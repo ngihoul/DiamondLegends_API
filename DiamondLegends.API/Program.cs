@@ -57,6 +57,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<ITeamService, TeamService>();
+
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddAuthentication(option =>
