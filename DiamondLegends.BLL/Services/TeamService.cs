@@ -10,6 +10,13 @@ namespace DiamondLegends.BLL.Services
 {
     public class TeamService : ITeamService
     {
+        private readonly ITeamRepository _teamRepository;
+
+        public TeamService(ITeamRepository teamRepository)
+        {
+            _teamRepository = teamRepository;
+        }
+
         public Task<Team> Create(Team team)
         {
             throw new NotImplementedException();
