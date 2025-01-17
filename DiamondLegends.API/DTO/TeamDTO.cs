@@ -7,7 +7,7 @@ namespace DiamondLegends.API.DTO
         public int Id { get; set; }
         public string Name { get; set; }
         public string City { get; set; }
-        public Country Country { get; set; }
+        public string Country { get; set; }
         public string? Logo { get; set; }
         public string Color_1 { get; set; }
         public string Color_2 { get; set; }
