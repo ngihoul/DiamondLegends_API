@@ -31,4 +31,13 @@ namespace DiamondLegends.API.DTO
         [Range(1, 193)]
         public int NationalityId { get; set; }
     }
+
+    public class UserLoginForm
+    {
+        [Required]
+        public string EmailOrUsername { get; set; }
+
+        [Required]
+        public string Password { get; set; }
+    }
 }

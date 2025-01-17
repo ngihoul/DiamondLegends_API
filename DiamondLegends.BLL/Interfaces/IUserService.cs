@@ -9,6 +9,7 @@ namespace DiamondLegends.BLL.Interfaces
 {
     public interface IUserService
     {
-        public Task<User> Create(User user, int countryId);
+        public Task<User> Register(User user, int countryId);
+        public Task<string> Login(string emailOrUsername, string password);
     }
 }

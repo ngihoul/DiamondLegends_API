@@ -15,6 +15,5 @@ namespace DiamondLegends.Domain.Models
         public string Password { get; set; }
         public string Salt { get; set; }
         public Country Nationality { get; set; }
-        public int NationalityId { get; set; }
     }
 }

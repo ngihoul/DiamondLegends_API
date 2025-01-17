@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[Leagues]
+(
+	[Id] INT IDENTITY,
+	[Name] NVARCHAR(120) NOT NULL,
+
+	CONSTRAINT PK_Leagues PRIMARY KEY (Id),
+	CONSTRAINT UK_Leagues_Name UNIQUE (Name)
+)

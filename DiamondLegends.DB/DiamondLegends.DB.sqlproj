@@ -62,6 +62,9 @@
   <ItemGroup>
     <Build Include="Tables\Users.sql" />
     <Build Include="Tables\Countries.sql" />
+    <Build Include="Tables\Teams.sql" />
+    <Build Include="Tables\Franchises.sql" />
+    <Build Include="Tables\Leagues.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Data.sql" />

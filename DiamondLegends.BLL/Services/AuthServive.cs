@@ -33,17 +33,15 @@ namespace CheckMate.BLL.Services
             return Argon2.Verify(user.Password, user.Salt + password + _config["Pepper"]);
         }
 
-        /*public string GenerateToken(User user)
+        public string GenerateToken(User user)
         {
             List<Claim> claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username ?? ""),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.Name),
-                new Claim("Username", user.Username ?? ""),
                 new Claim("Id", user.Id.ToString()),
-                new Claim("Role", user.Role.Name),
+                new Claim("Username", user.Username ?? "")
             };
 
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
@@ -59,6 +57,6 @@ namespace CheckMate.BLL.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }*/
+        }
     }
 }
