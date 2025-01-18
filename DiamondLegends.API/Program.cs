@@ -1,4 +1,5 @@
 using CheckMate.BLL.Services;
+using DiamondLegends.BLL.Generators;
 using DiamondLegends.BLL.Interfaces;
 using DiamondLegends.BLL.Services;
 using DiamondLegends.DAL.Interfaces;
@@ -59,6 +60,11 @@ builder.Services.AddScoped<ICountryService, CountryService>();
 
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+
+builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
+
+builder.Services.AddScoped<LeagueNameGenerator>();
+builder.Services.AddScoped<TeamGenerator>();
 
 builder.Services.AddScoped<AuthService>();
 

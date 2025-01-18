@@ -208,3 +208,12 @@ INSERT INTO [Countries](Id, Alpha2, [Name]) VALUES
 (193, 'zw', 'Zimbabwe');
 
 SET IDENTITY_INSERT [Countries] OFF
+
+
+SET IDENTITY_INSERT [Users] ON
+
+INSERT INTO Users(Id, Username, [Email], [Password], [Salt], Nationality) VALUES 
+(1, 'botuser', 'botuser@diamondlegends.com', null, null, 17),
+(2, 'ngihoul', 'ngihoul@hotmail.com', '$argon2id$v=19$m=65536,t=3,p=1$Jcuh8Y0YtLHuNPMwZxnUEA$DVQKpw3oHcIOyOSGIvAWIdi6YnaVtqVqL6gSiEM3SmI', 'a26bc961-942b-4769-8bcd-49288c76b2fe', 17);
+
+SET IDENTITY_INSERT [Users] OFF

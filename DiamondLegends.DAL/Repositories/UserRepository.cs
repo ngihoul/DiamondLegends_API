@@ -35,68 +35,65 @@ namespace DiamondLegends.DAL.Repositories
         // TODO : tester si null est renvoyé ?!
         public async Task<User?> GetByUsername(string username)
         {
-            await _connection.OpenAsync();
-
-            var results = await _connection.QueryAsync<User?, Country?, User?>(
-                "SELECT * FROM Users WHERE Username = @Username",
-                (user, country) =>
-                {
-                    user.Nationality = country;
-                    return user;
-                },
-                new { Username = username },
-                splitOn: "Nationality"
-            );
-
-            User? user = results.FirstOrDefault();
-
-            await _connection.CloseAsync();
-
-            return user;
+            return await GetBy("username", username);
         }
 
         // TODO : tester si null est renvoyé ?!
         public async Task<User?> GetByEmail(string email)
         {
-            await _connection.OpenAsync();
-
-            var results = await _connection.QueryAsync<User?, Country?, User?>(
-                "SELECT * FROM Users WHERE Email = @Email",
-                (user, country) =>
-                {
-                    user.Nationality = country;
-                    return user;
-                },
-                new { Email = email },
-                splitOn: "Nationality"
-            );
-
-            User? user = results.FirstOrDefault();
-
-            await _connection.CloseAsync();
-
-            return user;
+            return await GetBy("email", email);
         }
 
         // TODO : tester si null est renvoyé ?!
         public async Task<User?> GetById(int id)
         {
+            return await GetBy("id", id.ToString());
+        }
+
+        private async Task<User> GetBy(string column, string value)
+        {
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT " + 
+                    "U.Id, U.Username, U.Email, U.Password, U.Salt, " +
+                    "C.Id AS CountryId, C.Name AS CountryName, C.Alpha2 AS CountryAlpha2 " +
+                "FROM Users AS U " +
+                "INNER JOIN Countries AS C ON U.Nationality = C.Id " +
+                $"WHERE U.{column} = @{column}";
+
+            int valueInt = 0;
+
+            if(column == "id")
+            {
+                valueInt = Convert.ToInt32(value);
+            }
+
+            command.Parameters.AddWithValue($"@{column}", (column == "id") ? valueInt : value);
+
             await _connection.OpenAsync();
 
-            var results = await _connection.QueryAsync<User?, Country?, User?>(
-                "SELECT * FROM Users WHERE Id = @Id",
-                (user, country) =>
+            using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+            User? user = null;
+
+            if (await reader.ReadAsync())
+            {
+                user = new User
                 {
-                    user.Nationality = country;
-                    return user;
-                },
-                new { Id = id },
-                splitOn: "Nationality"
-            );
+                    Id = (int)reader["Id"],
+                    Username = (string)reader["Username"],
+                    Email = reader["Email"] == DBNull.Value ? null : (string)reader["Email"],
+                    Password = reader["Password"] == DBNull.Value ? null : (string)reader["Password"],
+                    Salt = reader["Salt"] == DBNull.Value ? null : (string)reader["Salt"],
+                    Nationality = new Country
+                    {
+                        Id = reader["CountryId"] == DBNull.Value ? 0 : (int)reader["CountryId"],
+                        Name = reader["CountryName"] == DBNull.Value ? null : (string)reader["CountryName"],
+                        Alpha2 = reader["CountryAlpha2"] == DBNull.Value ? null : (string)reader["CountryAlpha2"]
+                    }
+                };
+            }
 
             await _connection.CloseAsync();
-
-            User? user = results.FirstOrDefault();
 
             return user;
         }

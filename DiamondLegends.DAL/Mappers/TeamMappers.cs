@@ -6,7 +6,7 @@ namespace DiamondLegends.DAL.Mappers
 {
     public static class TeamMappers
     {
-        public static Team TeamWithCountryAndLeague(SqlDataReader reader)
+        public static Team FullTeam(SqlDataReader reader)
         {
             return new Team()
             {

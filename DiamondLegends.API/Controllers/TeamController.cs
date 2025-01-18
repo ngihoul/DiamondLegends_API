@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using DiamondLegends.API.Mappers;
 using DiamondLegends.Domain.Models;
 using DiamondLegends.BLL.Interfaces;
+using DiamondLegends.API.Extensions;
 
 namespace DiamondLegends.API.Controllers
 {
@@ -40,14 +41,14 @@ namespace DiamondLegends.API.Controllers
                 throw new ArgumentNullException("L'équipe n'est pas valide'");
             }
 
-            int userId = HttpContext.User.FindFirst("Id")?.Value is not null ? int.Parse(HttpContext.User.FindFirst("Id")?.Value) : 0;
+            int userId = User.GetUserId();
 
             if(userId <= 0)
             {
                 throw new ArgumentException("L'utilisateur n'est pas connecté");
             }
 
-            Team team = await _teamService.Create(teamForm.ToTeam(), userId);
+            Team team = await _teamService.Create(teamForm.ToTeam(), userId, teamForm.CountryId);
 
             return Ok(team.ToView());
         }
