@@ -46,7 +46,14 @@ namespace DiamondLegends.BLL.Services
             user.Salt = _authService.GenerateSalt();
             user.Password = _authService.HashPassword(user.Password, user.Salt);
 
-            user.Nationality = await _countryRepository.GetById(countryId);
+            Country? nationality = await _countryRepository.GetById(countryId);
+
+            if(nationality is null)
+            {
+                throw new Exception("Le pays n'existe pas");
+            }
+
+            user.Nationality = nationality;
 
             return await _userRepository.Create(user);
         }

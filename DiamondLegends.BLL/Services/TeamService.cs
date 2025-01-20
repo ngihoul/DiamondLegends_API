@@ -47,18 +47,22 @@ namespace DiamondLegends.BLL.Services
                 {
                     // Add Owner = Use HttpContext and pass in parameters
                     User? user = await _userRepository.GetById(userId);
+
                     if (user is null)
                     {
                         throw new ArgumentException("Cet utilisateur n'existe pas");
                     }
+
                     team.Owner = user;
 
                     // Fetch country
-                    team.Country = await _countryRepository.GetById(countryId);
-                    if (team.Country is null)
-                    {
-                        throw new ArgumentException("Le pays spécifié n'existe pas");
+                    Country? country = await _countryRepository.GetById(countryId);
+
+                    if (country is null) { 
+                        throw new ArgumentException("Le pays n'existe pas");
                     }
+
+                    team.Country = country;
 
                     // Create & Link to a League
                     League newLeague = new League() { Name = _leagueNameGenerator.Generate() };

@@ -204,7 +204,14 @@ namespace DiamondLegends.BLL.Generators
 
         private async Task<User> GetBotUser()
         {
-            return await _userRepository.GetById(1);
+            User? user = await _userRepository.GetById(1);
+
+            if (user is null)
+            {
+                throw new Exception("L'utilisateur n'existe pas");
+            }
+
+            return user;
         }
 
         public async Task<List<Player>> GenerateRoster(Team team)

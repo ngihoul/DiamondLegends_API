@@ -358,7 +358,14 @@ namespace DiamondLegends.BLL.Generators
                     break;
             }
 
-            return await _countryRepository.GetById(countryId);
+            Country? nationality = await _countryRepository.GetById(countryId);
+
+            if(nationality is null)
+            {
+                throw new Exception("Le pays n'existe pas");
+            }
+
+            return nationality;
         }
 
         private string GetLanguage(Country nationality)

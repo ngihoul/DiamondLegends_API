@@ -23,7 +23,7 @@ namespace DiamondLegends.DAL.Repositories
             }
         }
 
-        public async Task<Country> GetById(int id)
+        public async Task<Country?> GetById(int id)
         {
             using (var connection = _connection.Create())
             {

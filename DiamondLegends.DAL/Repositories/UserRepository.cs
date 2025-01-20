@@ -50,7 +50,7 @@ namespace DiamondLegends.DAL.Repositories
             return await GetBy("id", id.ToString());
         }
 
-        private async Task<User> GetBy(string column, string value)
+        private async Task<User?> GetBy(string column, string value)
         {
             using(var connection = _connection.Create())
             {

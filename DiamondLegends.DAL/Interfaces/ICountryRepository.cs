@@ -10,6 +10,6 @@ namespace DiamondLegends.DAL.Interfaces
     public interface ICountryRepository
     {
         public Task<IEnumerable<Country>> GetAll();
-        public Task<Country> GetById(int id);
+        public Task<Country?> GetById(int id);
     }
 }
