@@ -8,13 +8,16 @@ namespace DiamondLegends.BLL.Services
 {
     public class TeamService : ITeamService
     {
+        #region Dependencies
         private readonly ITeamRepository _teamRepository;
         private readonly IUserRepository _userRepository;
         private readonly ILeagueRepository _leagueRepository;
         private readonly ICountryRepository _countryRepository;
         private readonly LeagueNameGenerator _leagueNameGenerator;
         private readonly TeamGenerator _teamGenerator;
+        #endregion
 
+        #region Constructor
         public TeamService(
             ITeamRepository teamRepository,
             IUserRepository userRepository,
@@ -33,7 +36,9 @@ namespace DiamondLegends.BLL.Services
             _leagueNameGenerator = leagueNameGenerator;
             _teamGenerator = teamGenerator;
         }
+        #endregion
 
+        #region Methods
         public async Task<Team> Create(Team team, int userId, int countryId)
         {
             using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -69,12 +74,14 @@ namespace DiamondLegends.BLL.Services
                     for (int i = 0; i < 5; i++)
                     {
                         Team opponent = await _teamGenerator.Generate(league, season);
-                        await _teamRepository.Create(opponent);
                     }
 
                     // Create the team and link to league
                     Team createdTeam = await _teamRepository.Create(team);
 
+                    // Create Roster
+                    team.Players = await _teamGenerator.GenerateRoster(team);
+                    
                     transactionScope.Complete();
 
                     return createdTeam;
@@ -107,5 +114,6 @@ namespace DiamondLegends.BLL.Services
         {
             throw new NotImplementedException();
         }
+        #endregion
     }
 }

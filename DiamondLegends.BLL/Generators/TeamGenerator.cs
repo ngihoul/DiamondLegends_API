@@ -1,4 +1,5 @@
 ﻿using DiamondLegends.DAL.Interfaces;
+using DiamondLegends.Domain.Enums;
 using DiamondLegends.Domain.Models;
 using System;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,10 @@ namespace DiamondLegends.BLL.Generators
     {
         private readonly IUserRepository _userRepository;
         private readonly ICountryRepository _countryRepository;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly ITeamRepository _teamRepository;
+
+        private readonly PlayerGenerator _playerGenerator;
 
         private readonly List<string> _Adjectives = new List<string>
         {
@@ -108,16 +113,18 @@ namespace DiamondLegends.BLL.Generators
             "Carcassonne", "Bruges", "Toledo", "Ronda", "Split", "Rhodes", "Mdina"
         };
 
-
-        public TeamGenerator(IUserRepository userRepository, ICountryRepository countryRepository)
+        public TeamGenerator(IUserRepository userRepository, ICountryRepository countryRepository, PlayerGenerator playerGenerator, ITeamRepository teamRepository, IPlayerRepository playerRepository)
         {
             _userRepository = userRepository;
             _countryRepository = countryRepository;
+            _playerGenerator = playerGenerator;
+            _teamRepository = teamRepository;
+            _playerRepository = playerRepository;
         }
 
         public async Task<Team> Generate(League league, int season)
         {
-            return new Team()
+            Team newTeam = new Team()
             {
                 Name = GenerateRandomName(),
                 Owner = await GetBotUser(),
@@ -132,8 +139,15 @@ namespace DiamondLegends.BLL.Generators
                 Color_2 = GenerateRandomColor("dark"),
                 // Color_3 = "FFFFFF"
             };
-        }
 
+            newTeam = await _teamRepository.Create(newTeam);
+
+            List<Player> players = await GenerateRoster(newTeam);
+
+            newTeam.Players = players;
+
+            return newTeam;
+        }
         private string GenerateRandomName()
         {
             string name;
@@ -191,6 +205,85 @@ namespace DiamondLegends.BLL.Generators
         private async Task<User> GetBotUser()
         {
             return await _userRepository.GetById(1);
+        }
+
+        public async Task<List<Player>> GenerateRoster(Team team)
+        {
+            List<Player> roster = new List<Player>();
+            Player newPlayer = new Player();
+
+            // 5 SP
+            for(int i = 0; i < 5; i++)
+            {
+                newPlayer = await CreatePlayer(new List<Position>() { Position.StartingPitcher }, team);
+            }
+            
+            // 5 RP
+            for (int i = 0; i < 5; i++)
+            {
+                newPlayer = await CreatePlayer(new List<Position>() { Position.ReliefPitcher }, team);
+            }
+
+            // 2 CL
+            for (int i = 0; i < 2; i++)
+            {
+                newPlayer = await CreatePlayer(new List<Position>() { Position.CloserPitcher }, team);
+            }
+
+            // 2 C
+            for (int i = 0; i < 2; i++)
+            {
+                newPlayer = await CreatePlayer(new List<Position>() { Position.Catcher }, team);
+            }
+
+            // 1 1B
+            newPlayer = await CreatePlayer(new List<Position>() { Position.FirstBase }, team);
+
+            // 1 2B
+            newPlayer = await CreatePlayer(new List<Position>() { Position.SecondBase }, team);
+
+            // 1 3B
+            newPlayer = await CreatePlayer(new List<Position>() { Position.ThirdBase }, team);
+
+            // 1 SS
+            newPlayer = await CreatePlayer(new List<Position>() { Position.ShortStop }, team);
+
+            // 1 UTL
+            newPlayer = await CreatePlayer(new List<Position>() { Position.Utility }, team);
+
+            // 1 DH
+            newPlayer = await CreatePlayer(new List<Position>() { Position.DesignatedHitter }, team);
+
+            // 1 LF
+            newPlayer = await CreatePlayer(new List<Position>() { Position.LeftField }, team);
+
+            // 1 CF
+            newPlayer = await CreatePlayer(new List<Position>() { Position.CenterField }, team);
+
+            // 1 RF
+            newPlayer = await CreatePlayer(new List<Position>() { Position.RightField }, team);
+
+            List<Position> OutfieldPositions = new List<Position>() { Position.LeftField, Position.CenterField, Position.RightField };
+
+            // 2 OF
+            for (int i = 0; i < 2; i++)
+            {
+                newPlayer = await CreatePlayer(OutfieldPositions, team);
+            }
+
+            return roster;
+        }
+
+        private async Task<Player> CreatePlayer(List<Position> positions, Team team)
+        {
+            Player playerToAdd = new Player();
+
+            playerToAdd = await _playerGenerator.Generate(positions);
+            playerToAdd = await _playerRepository.Create(playerToAdd, team.Id);
+
+            team.Players.Add(playerToAdd);
+
+            return playerToAdd;
         }
     }
 }

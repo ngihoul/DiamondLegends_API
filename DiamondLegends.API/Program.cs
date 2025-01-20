@@ -2,10 +2,13 @@ using CheckMate.BLL.Services;
 using DiamondLegends.BLL.Generators;
 using DiamondLegends.BLL.Interfaces;
 using DiamondLegends.BLL.Services;
+using DiamondLegends.DAL.Factories.Interfaces;
+using DiamondLegends.DAL.Factories;
 using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.DAL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -50,7 +53,8 @@ builder.Services.AddSwaggerGen(c => {
     // https://github.com/domaindrivendev/Swashbuckle.AspNetCore?tab=readme-ov-file#add-security-definitions-and-requirements
 });
 
-builder.Services.AddTransient<SqlConnection>(c => new SqlConnection(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddTransient<IDbConnectionFactory>(sp =>
+    new DbConnectionFactory(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -63,8 +67,11 @@ builder.Services.AddScoped<ITeamService, TeamService>();
 
 builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
 
+builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
+
 builder.Services.AddScoped<LeagueNameGenerator>();
 builder.Services.AddScoped<TeamGenerator>();
+builder.Services.AddScoped<PlayerGenerator>();
 
 builder.Services.AddScoped<AuthService>();
 

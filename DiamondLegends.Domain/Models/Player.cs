@@ -1,8 +1,16 @@
-﻿namespace DiamondLegends.Domain.Models
+﻿using DiamondLegends.Domain.Enums;
+
+namespace DiamondLegends.Domain.Models
 {
     public class Player
     {
-        public int ID { get; set; }
+        public const int BATTING_RIGHT = 0;
+        public const int BATTING_LEFT = 1;
+
+        public const int THROWING_RIGHT = 0;
+        public const int THROWING_LEFT = 1;
+
+        public int Id { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }
         public DateTime DateOfBirth { get; set; }

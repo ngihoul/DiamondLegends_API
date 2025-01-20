@@ -1,38 +1,35 @@
 ﻿using Dapper;
+using DiamondLegends.DAL.Factories.Interfaces;
 using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Models;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondLegends.DAL.Repositories
 {
     public class LeagueRepository : ILeagueRepository
     {
-        private readonly SqlConnection _connection;
+        private readonly IDbConnectionFactory _connection;
 
-        public LeagueRepository(SqlConnection connection)
+        public LeagueRepository(IDbConnectionFactory connection)
         {
             _connection = connection;
         }
 
         public async Task<League> Create(League league)
         {
-            await _connection.OpenAsync();
+            using(var connection = _connection.Create())
+            {
+                await connection.OpenAsync();
 
-            league.Id = await _connection.QuerySingleAsync<int>(
-                "INSERT INTO Leagues(Name) " +
-                "OUTPUT INSERTED.Id " +
-                "VALUES (@Name)",
-                league
-            );
+                league.Id = await connection.QuerySingleAsync<int>(
+                    "INSERT INTO Leagues(Name) " +
+                    "OUTPUT INSERTED.Id " +
+                    "VALUES (@Name)",
+                    league
+                );
 
-            await _connection.CloseAsync();
-
-            return league;
+                return league;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DiamondLegends.DAL.Factories.Interfaces;
 using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Models;
 using Microsoft.Data.SqlClient;
@@ -7,29 +8,28 @@ namespace DiamondLegends.DAL.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly SqlConnection _connection;
-        private readonly ICountryRepository _countryRepository;
+        private readonly IDbConnectionFactory _connection;
 
-        public UserRepository(SqlConnection connection, ICountryRepository countryRepository)
+        public UserRepository(IDbConnectionFactory connection)
         {
             _connection = connection;
-            _countryRepository = countryRepository;
         }
 
         public async Task<User> Create(User user)
         {
-            await _connection.OpenAsync();
+            using(var connection = _connection.Create())
+            {
+                await connection.OpenAsync();
 
-            user.Id = await _connection.QuerySingleAsync<int>(
-                "INSERT INTO Users(Username, Email, Password, Salt, Nationality) " +
-                "OUTPUT INSERTED.Id " +
-                "VALUES (@Username, @Email, @Password, @Salt, @Nationality)", 
-                new { user.Username, user.Email, user.Password, user.Salt, Nationality = user.Nationality.Id }
-            );
+                user.Id = await connection.QuerySingleAsync<int>(
+                    "INSERT INTO Users(Username, Email, Password, Salt, Nationality) " +
+                    "OUTPUT INSERTED.Id " +
+                    "VALUES (@Username, @Email, @Password, @Salt, @Nationality)",
+                    new { user.Username, user.Email, user.Password, user.Salt, Nationality = user.Nationality.Id }
+                );
 
-            await _connection.CloseAsync();
-
-            return user;
+                return user;
+            }
         }
 
         // TODO : tester si null est renvoyé ?!
@@ -52,50 +52,51 @@ namespace DiamondLegends.DAL.Repositories
 
         private async Task<User> GetBy(string column, string value)
         {
-            SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT " + 
-                    "U.Id, U.Username, U.Email, U.Password, U.Salt, " +
-                    "C.Id AS CountryId, C.Name AS CountryName, C.Alpha2 AS CountryAlpha2 " +
-                "FROM Users AS U " +
-                "INNER JOIN Countries AS C ON U.Nationality = C.Id " +
-                $"WHERE U.{column} = @{column}";
-
-            int valueInt = 0;
-
-            if(column == "id")
+            using(var connection = _connection.Create())
             {
-                valueInt = Convert.ToInt32(value);
-            }
+                SqlCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT " +
+                        "U.Id, U.Username, U.Email, U.Password, U.Salt, " +
+                        "C.Id AS CountryId, C.Name AS CountryName, C.Alpha2 AS CountryAlpha2 " +
+                    "FROM Users AS U " +
+                    "INNER JOIN Countries AS C ON U.Nationality = C.Id " +
+                    $"WHERE U.{column} = @{column}";
 
-            command.Parameters.AddWithValue($"@{column}", (column == "id") ? valueInt : value);
+                int valueInt = 0;
 
-            await _connection.OpenAsync();
-
-            using SqlDataReader reader = await command.ExecuteReaderAsync();
-
-            User? user = null;
-
-            if (await reader.ReadAsync())
-            {
-                user = new User
+                if (column == "id")
                 {
-                    Id = (int)reader["Id"],
-                    Username = (string)reader["Username"],
-                    Email = reader["Email"] == DBNull.Value ? null : (string)reader["Email"],
-                    Password = reader["Password"] == DBNull.Value ? null : (string)reader["Password"],
-                    Salt = reader["Salt"] == DBNull.Value ? null : (string)reader["Salt"],
-                    Nationality = new Country
+                    valueInt = Convert.ToInt32(value);
+                }
+
+                command.Parameters.AddWithValue($"@{column}", (column == "id") ? valueInt : value);
+
+                await connection.OpenAsync();
+
+                using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                User? user = null;
+
+                if (await reader.ReadAsync())
+                {
+                    user = new User
                     {
-                        Id = reader["CountryId"] == DBNull.Value ? 0 : (int)reader["CountryId"],
-                        Name = reader["CountryName"] == DBNull.Value ? null : (string)reader["CountryName"],
-                        Alpha2 = reader["CountryAlpha2"] == DBNull.Value ? null : (string)reader["CountryAlpha2"]
-                    }
-                };
+                        Id = (int)reader["Id"],
+                        Username = (string)reader["Username"],
+                        Email = reader["Email"] == DBNull.Value ? null : (string)reader["Email"],
+                        Password = reader["Password"] == DBNull.Value ? null : (string)reader["Password"],
+                        Salt = reader["Salt"] == DBNull.Value ? null : (string)reader["Salt"],
+                        Nationality = new Country
+                        {
+                            Id = reader["CountryId"] == DBNull.Value ? 0 : (int)reader["CountryId"],
+                            Name = reader["CountryName"] == DBNull.Value ? null : (string)reader["CountryName"],
+                            Alpha2 = reader["CountryAlpha2"] == DBNull.Value ? null : (string)reader["CountryAlpha2"]
+                        }
+                    };
+                }
+
+                return user;
             }
-
-            await _connection.CloseAsync();
-
-            return user;
         }
     }
 }

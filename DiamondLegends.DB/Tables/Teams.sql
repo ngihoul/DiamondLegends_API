@@ -16,7 +16,6 @@
 
 	CONSTRAINT PK_Teams PRIMARY KEY (Id),
 	CONSTRAINT FK_Teams_Users_Owner FOREIGN KEY (Owner) REFERENCES Users(Id),
-	CONSTRAINT UK_Teams_Name UNIQUE ([Name]),
 	CONSTRAINT FK_Teams_Countries_Country FOREIGN KEY (Country) REFERENCES Countries(Id),
 	CONSTRAINT FK_Teams_Leagues_League FOREIGN KEY (League) REFERENCES Leagues(Id),
 )

@@ -1,49 +1,38 @@
 ﻿using Dapper;
+using DiamondLegends.DAL.Factories.Interfaces;
 using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Models;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiamondLegends.DAL.Repositories
 {
     public class CountryRepository : ICountryRepository
     {
-        private readonly SqlConnection _connection;
+        private readonly IDbConnectionFactory _connection;
 
-        public CountryRepository(SqlConnection connection)
+        public CountryRepository(IDbConnectionFactory connection)
         {
             _connection = connection;
         }
 
         public async Task<IEnumerable<Country>> GetAll()
         {
-            await _connection.OpenAsync();
-
-            IEnumerable<Country> countries = _connection.Query<Country>(
-                "SELECT * FROM Countries"
-            );
-
-            await _connection.CloseAsync();
-
-            return countries;
+            using (var connection = _connection.Create())
+            {
+                await connection.OpenAsync();
+                return await connection.QueryAsync<Country>("SELECT * FROM Countries");
+            }
         }
 
         public async Task<Country> GetById(int id)
         {
-            await _connection.OpenAsync();
-
-            Country country = _connection.QuerySingle<Country>(
-                "SELECT * FROM Countries WHERE Id = @Id",
-                new { Id = id }
-            );
-
-            await _connection.CloseAsync();
-
-            return country;
+            using (var connection = _connection.Create())
+            {
+                await connection.OpenAsync();
+                return await connection.QuerySingleAsync<Country>(
+                    "SELECT * FROM Countries WHERE Id = @Id",
+                    new { Id = id }
+                );
+            }
         }
     }
 }

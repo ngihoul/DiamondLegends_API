@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace DiamondLegends.DAL.Interfaces
 {
-    public interface ITeamRepository
+    public interface IPlayerRepository
     {
-        public Task<Team?> GetById(int id);
-        public Task<IEnumerable<Team>> GetAllByUser(int userId);
-        public Task<Team> Create(Team team);
+        public Task<Player> Create(Player player, int teamId);
     }
 }
