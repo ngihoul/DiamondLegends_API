@@ -10,7 +10,7 @@ namespace DiamondLegends.DAL.Interfaces
     public interface ITeamRepository
     {
         public Task<Team?> GetById(int id);
-        public Task<IEnumerable<Team>> GetAllByUser(int userId);
+        public Task<List<Team>> GetAllByUser(int userId);
         public Task<Team> Create(Team team);
     }
 }

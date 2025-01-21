@@ -5,6 +5,7 @@ using DiamondLegends.API.Mappers;
 using DiamondLegends.Domain.Models;
 using DiamondLegends.BLL.Interfaces;
 using DiamondLegends.API.Extensions;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace DiamondLegends.API.Controllers
 {
@@ -13,6 +14,7 @@ namespace DiamondLegends.API.Controllers
     public class TeamController : ControllerBase
     {
         private readonly ITeamService _teamService;
+        private readonly IUserService _userService;
 
         public TeamController(ITeamService teamService)
         {
@@ -27,10 +29,20 @@ namespace DiamondLegends.API.Controllers
             return Ok(team.ToView());
         }
 
-        [HttpGet("user/{id:int}")]
-        public async Task<ActionResult<IEnumerable<TeamViewList>>> GetAllByUser()
+        [HttpGet("user")]
+        public async Task<ActionResult<List<TeamViewList>?>> GetAllByUser()
         {
-            throw new NotImplementedException();
+            int userId = User.GetUserId();
+
+            // TODO : Utiliser isConnected ?
+            if(userId <= 0)
+            {
+                throw new ArgumentException("L'utilisateur n'est pas connecté");
+            }
+
+            List<Team>? teams = await _teamService.GetAllByUser(userId);
+
+            return Ok(teams?.Select(t => t.ToViewList()));
         }
 
         [HttpPost]
@@ -43,7 +55,8 @@ namespace DiamondLegends.API.Controllers
 
             int userId = User.GetUserId();
 
-            if(userId <= 0)
+            // TODO : Utiliser isConnected ?
+            if (userId <= 0)
             {
                 throw new ArgumentException("L'utilisateur n'est pas connecté");
             }
@@ -51,6 +64,16 @@ namespace DiamondLegends.API.Controllers
             Team team = await _teamService.Create(teamForm.ToTeam(), userId, teamForm.CountryId);
 
             return Ok(team.ToView());
+        }
+
+        private bool isConnected(int userId)
+        {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("L'utilisateur n'est pas connecté");
+            }
+
+            return true;
         }
     }
 }

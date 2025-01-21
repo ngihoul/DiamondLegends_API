@@ -8,6 +8,10 @@ namespace DiamondLegends.BLL.Services
 {
     public class TeamService : ITeamService
     {
+        #region Constants
+        private const int NB_OPPONENTS = 7;
+        #endregion
+        
         #region Dependencies
         private readonly ITeamRepository _teamRepository;
         private readonly IUserRepository _userRepository;
@@ -75,7 +79,7 @@ namespace DiamondLegends.BLL.Services
                     team.Season = season;
 
                     // Create Opponents & link them to the League
-                    for (int i = 0; i < 5; i++)
+                    for (int i = 0; i < NB_OPPONENTS; i++)
                     {
                         Team opponent = await _teamGenerator.Generate(league, season);
                     }
@@ -114,9 +118,18 @@ namespace DiamondLegends.BLL.Services
             return team;
         }
 
-        public Task<IEnumerable<Team>> GetAllByUser(int userId)
+        public async Task<List<Team>?> GetAllByUser(int userId)
         {
-            throw new NotImplementedException();
+            User? user = await _userRepository.GetById(userId);
+
+            if(user is null)
+            {
+                throw new ArgumentException("Cet utilisateur n'existe pas");
+            }
+
+            List<Team>? teams = await _teamRepository.GetAllByUser(userId);
+
+            return teams;
         }
         #endregion
     }
