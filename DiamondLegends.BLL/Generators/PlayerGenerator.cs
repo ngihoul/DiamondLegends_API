@@ -6,12 +6,36 @@ namespace DiamondLegends.BLL.Generators
 {
     public class PlayerGenerator
     {
+        private static Dictionary<string, int> _Countries = new Dictionary<string, int>()
+        {
+            // Between 1 and 60 = USA - id = 185
+            // Between 61 and 73 = Dominican Republic - id = 50
+            // Between 75 and 79 = Venezuela - id = 189
+            // Between 80 and 84 = Cuba - id = 44
+            // Between 85 and 87 = Japan - id = 84
+            // Between 88 and 90 = Mexico - id = 112
+            // Between 91 and 93 = South Korea - id = 90
+            // Between 93 and 95 = Canada - id = 31
+            // Between 96 and 98 = Colombia - id = 37
+            // Between 98 and 100 = Panama - id = 133
+            { "USA", 185 },
+            { "Dominican Republic", 50 },
+            { "Venezuela", 189 },
+            { "Cuba", 44 },
+            { "Japan", 84 },
+            { "Mexico", 112 },
+            { "South Korea", 90 },
+            { "Canada", 31 },
+            { "Colombia", 37 },
+            { "Panama", 133 }
+        };
+
         #region Props
         private readonly ICountryRepository _countryRepository;
 
         private static List<int> _NationalityIds = new List<int>()
         {
-            185, 50, 189, 44, 84, 112, 90, 31, 37, 133
+            _Countries["USA"], _Countries["Dominican Republic"], _Countries["Venezuela"], _Countries["Cuba"], _Countries["Japan"], _Countries["Mexico"], _Countries["South Korea"], _Countries["Canada"], _Countries["Colombia"], _Countries["Panama"]
         };
 
         private static List<string> _EnglishFirstnames = new List<string>
@@ -307,16 +331,7 @@ namespace DiamondLegends.BLL.Generators
 
         private async Task<Country> GenerateRandomNationality()
         {
-            // Between 1 and 60 = USA - id = 185
-            // Between 61 and 73 = Dominican Republic - id = 50
-            // Between 75 and 79 = Venezuela - id = 189
-            // Between 80 and 84 = Cuba - id = 44
-            // Between 85 and 87 = Japan - id = 84
-            // Between 88 and 90 = Mexico - id = 112
-            // Between 91 and 93 = South Korea - id = 90
-            // Between 93 and 95 = Canada - id = 31
-            // Between 96 and 98 = Colombia - id = 37
-            // Between 98 and 100 = Panama - id = 133
+            
 
             int randomNumber = Random.Shared.Next(101);
             int countryId = 0;
@@ -324,37 +339,37 @@ namespace DiamondLegends.BLL.Generators
             switch (randomNumber)
             {
                 case >= 1 and <= 60:
-                    countryId = 185;
+                    countryId = _Countries["USA"];
                     break;
                 case >= 61 and <= 73:
-                    countryId = 50;
+                    countryId = _Countries["Dominican Republic"];
                     break;
                 case >= 75 and <= 79:
-                    countryId = 189;
+                    countryId = _Countries["Venezuela"];
                     break;
                 case >= 80 and <= 84:
-                    countryId = 44;
+                    countryId = _Countries["Cuba"];
                     break;
                 case >= 85 and <= 87:
-                    countryId = 84;
+                    countryId = _Countries["Japan"];
                     break;
                 case >= 88 and <= 90:
-                    countryId = 112;
+                    countryId = _Countries["Mexico"];
                     break;
                 case >= 91 and <= 93:
-                    countryId = 90;
+                    countryId = _Countries["South Korea"];
                     break;
                 case >= 93 and <= 95:
-                    countryId = 31;
+                    countryId = _Countries["Canada"];
                     break;
                 case >= 96 and <= 98:
-                    countryId = 37;
+                    countryId = _Countries["Colombia"];
                     break;
                 case >= 98 and <= 100:
-                    countryId = 133;
+                    countryId = _Countries["Panama"];
                     break;
                 default:
-                    countryId = 185;
+                    countryId = _Countries["USA"];
                     break;
             }
 

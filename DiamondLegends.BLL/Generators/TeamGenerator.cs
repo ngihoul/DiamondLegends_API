@@ -1,20 +1,20 @@
 ﻿using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Enums;
 using DiamondLegends.Domain.Models;
-using System;
-using System.Runtime.CompilerServices;
 
 namespace DiamondLegends.BLL.Generators
 {
     public class TeamGenerator
     {
+        #region Dependencies
         private readonly IUserRepository _userRepository;
         private readonly ICountryRepository _countryRepository;
         private readonly IPlayerRepository _playerRepository;
         private readonly ITeamRepository _teamRepository;
-
         private readonly PlayerGenerator _playerGenerator;
+        #endregion
 
+        #region Constants
         private readonly List<string> _Adjectives = new List<string>
         {
             "Crimson", "Golden", "Majestic", "Silver", "Blazing", "Titan", "Ironclad", "Thunderous",
@@ -112,7 +112,9 @@ namespace DiamondLegends.BLL.Generators
             "Persepolis", "Giza", "Chichen Itza", "Tikal", "Palmyra", "Pompeii", "Ephesus", "Lhasa",
             "Carcassonne", "Bruges", "Toledo", "Ronda", "Split", "Rhodes", "Mdina"
         };
+        #endregion
 
+        #region Constructor
         public TeamGenerator(IUserRepository userRepository, ICountryRepository countryRepository, PlayerGenerator playerGenerator, ITeamRepository teamRepository, IPlayerRepository playerRepository)
         {
             _userRepository = userRepository;
@@ -121,7 +123,9 @@ namespace DiamondLegends.BLL.Generators
             _teamRepository = teamRepository;
             _playerRepository = playerRepository;
         }
+        #endregion
 
+        #region Methods
         public async Task<Team> Generate(League league, int season)
         {
             Team newTeam = new Team()
@@ -292,5 +296,6 @@ namespace DiamondLegends.BLL.Generators
 
             return playerToAdd;
         }
+        #endregion
     }
 }
