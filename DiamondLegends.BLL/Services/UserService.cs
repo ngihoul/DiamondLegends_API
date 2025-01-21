@@ -8,11 +8,13 @@ namespace DiamondLegends.BLL.Services
 {
     public class UserService : IUserService
     {
+        #region Dependencies
         private readonly IUserRepository _userRepository;
         private readonly ICountryRepository _countryRepository;
-
         private readonly AuthService _authService;
+        #endregion
 
+        #region Constructor
         public UserService(IUserRepository userRepository, ICountryRepository countryRepository, AuthService authService)
         {
             _userRepository = userRepository;
@@ -20,7 +22,9 @@ namespace DiamondLegends.BLL.Services
 
             _authService = authService;
         }
+        #endregion
 
+        #region Methods
         public async Task<User> Register(User user, int countryId)
         {
             if(user is null)
@@ -79,11 +83,24 @@ namespace DiamondLegends.BLL.Services
             return _authService.GenerateToken(user);
         }
 
+        public async Task<User> GetById(int id)
+        {
+            User? user = await _userRepository.GetById(id);
+
+            if (user is null)
+            {
+                throw new ArgumentNullException("L'utilisateur n'existe pas");
+            }
+
+            return user;
+        }
+
         private bool isEmail(string email)
         {
             Regex emailRegex = new Regex("^\\S+@\\S+\\.\\S+$");
 
             return emailRegex.IsMatch(email);
         }
+        #endregion
     }
 }
