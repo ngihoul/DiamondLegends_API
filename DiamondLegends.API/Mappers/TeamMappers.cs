@@ -44,7 +44,7 @@ namespace DiamondLegends.API.Mappers
             {
                 Id = team.Id,
                 Name = team.Name,
-                Owner =team.Owner,
+                Owner = team.Owner.ToView(),
                 Country = team.Country.Name,
                 Logo = team.Logo,
                 season = team.Season
