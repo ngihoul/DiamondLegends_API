@@ -1,4 +1,5 @@
 ﻿using DiamondLegends.Domain.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace DiamondLegends.API.DTO
 {
@@ -32,12 +33,28 @@ namespace DiamondLegends.API.DTO
 
     public class TeamCreationForm
     {
+        // TODO : ajouter annotations
+        [Required]
         public string Name { get; set; }
+
+        [Required]
         public string City { get; set; }
+
+        [Required]
         public int CountryId { get; set; }
         public string? Logo { get; set; }
+
+        [Required]
         public string Color_1 { get; set; }
+
+        [Required]
         public string Color_2 { get; set; }
         public string Color_3 { get; set; }
+    }
+
+    public class TeamViewPlayer
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }

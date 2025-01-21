@@ -92,13 +92,43 @@ namespace DiamondLegends.DAL.Repositories
             }
         }
 
+        public async Task<Player?> GetById(int id)
+        {
+            using(var connection = _connection.Create())
+            {
+                SqlCommand command = connection.CreateCommand();
+
+                command.CommandText = "SELECT P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id AS NationalityId, C.Name AS NationalityName, C.Alpha2 AS NationalityAlpha2, P.[Throw], P.Bat, P.Salary, P.Energy, P.Contact, P.Contact_Potential, P.[Power], P.Power_Potential, P.Running, P.Running_Potential, P.Defense, P.Defense_Potential, P.Mental, P.Mental_Potential, P.Stamina, P.Stamina_potential, P.[Control], P.Control_potential, P.Velocity, P.Velocity_potential, P.Movement, P.Movement_potential, T.Id AS TeamId, T.Name AS TeamName " +
+                    "FROM Players AS P " +
+                    "JOIN Countries AS C ON P.Nationality = C.Id " +
+                    "JOIN Rosters AS R ON P.Id = R.Player " +
+                    "JOIN Teams AS T ON R.Team = T.Id " +
+                    "WHERE P.Id = @Id";
+
+                command.Parameters.AddWithValue("@Id", id);
+
+                await connection.OpenAsync();
+
+                SqlDataReader reader = await command.ExecuteReaderAsync();
+                Player player = null;
+
+                if(await reader.ReadAsync())
+                {
+                    List<Position> positions = await GetPositionsForPlayer(id);
+                    player = PlayerMappers.FullPlayer(reader, positions);
+                }
+
+                return player;
+            }
+        }
+
         public async Task<List<Player>> GetAllByTeam(int teamId)
         {
             using(var connection = _connection.Create())
             {
                 SqlCommand command = connection.CreateCommand();
 
-                command.CommandText = "SELECT P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id AS NationalityId, C.Name AS NationalityName, C.Alpha2 AS NationalityAlpha2, P.[Throw], P.Bat, P.Salary, P.Energy, P.Contact, P.Contact_Potential, P.[Power], P.Power_Potential, P.Running, P.Running_Potential, P.Defense, P.Defense_Potential, P.Mental, P.Mental_Potential, P.Stamina, P.Stamina_potential, P.[Control], P.Control_potential, P.Velocity, P.Velocity_potential, P.Movement, P.Movement_potential " +
+                command.CommandText = "SELECT P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id AS NationalityId, C.Name AS NationalityName, C.Alpha2 AS NationalityAlpha2, P.[Throw], P.Bat, P.Salary, P.Energy " +
                     "FROM Players AS P " +
                     "JOIN Countries AS C ON P.Nationality = C.Id " +
                     "JOIN Rosters AS R ON P.Id = R.Player " +
@@ -115,7 +145,7 @@ namespace DiamondLegends.DAL.Repositories
 
                 while (await reader.ReadAsync()) {
                     List<Position> positions = await GetPositionsForPlayer((int)reader["Id"]);
-                    players.Add(PlayerMappers.FullPlayer(reader, positions));
+                    players.Add(PlayerMappers.ForViewList(reader, positions));
                 }
 
                 return players;

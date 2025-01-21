@@ -47,7 +47,32 @@ namespace DiamondLegends.DAL.Mappers
                 Velocity = (int)reader["Velocity"],
                 VelocityPotential = (int)reader["Velocity_potential"],
                 Movement = (int)reader["Movement"],
-                MovementPotential = (int)reader["Movement_potential"]
+                MovementPotential = (int)reader["Movement_potential"],
+                Team = new Team()
+                {
+                    Id = (int)reader["TeamId"],
+                    Name = (string)reader["TeamName"]
+                }
+            };
+        }
+        public static Player ForViewList(SqlDataReader reader, List<Position> positions)
+        {
+            return new Player()
+            {
+                Id = (int)reader["Id"],
+                Firstname = (string)reader["FirstName"],
+                Lastname = (string)reader["LastName"],
+                DateOfBirth = (DateTime)reader["Date_of_birth"],
+                Nationality = new Country()
+                {
+                    Id = (int)reader["NationalityId"],
+                    Name = (string)reader["NationalityName"],
+                    Alpha2 = (string)reader["NationalityAlpha2"]
+                },
+                Positions = positions,
+                Throw = (int)reader["Throw"],
+                Bat = (int)reader["Bat"],
+                Energy = (int)reader["Energy"],
             };
         }
     }

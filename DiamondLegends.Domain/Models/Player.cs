@@ -38,5 +38,6 @@ namespace DiamondLegends.Domain.Models
         public int Movement { get; set; }
         public int MovementPotential { get; set; }
         public IEnumerable<Position> Positions { get; set; }
+        public Team Team { get; set; } 
     }
 }

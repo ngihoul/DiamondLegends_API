@@ -50,5 +50,14 @@ namespace DiamondLegends.API.Mappers
                 season = team.Season
             };
         }
+
+        public static TeamViewPlayer ToViewPlayer(this Team team)
+        {
+            return new TeamViewPlayer()
+            {
+                Id = team.Id,
+                Name = team.Name
+            };
+        }
     }
 }
