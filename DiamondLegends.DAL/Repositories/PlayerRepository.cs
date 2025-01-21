@@ -4,21 +4,22 @@ using DiamondLegends.DAL.Factories.Interfaces;
 using DiamondLegends.Domain.Enums;
 using DiamondLegends.Domain.Models;
 using Microsoft.Data.SqlClient;
+using DiamondLegends.DAL.Mappers;
 
 namespace DiamondLegends.DAL.Repositories
 {
     public class PlayerRepository : IPlayerRepository
     {
-        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IDbConnectionFactory _connection;
 
-        public PlayerRepository(IDbConnectionFactory connectionFactory)
+        public PlayerRepository(IDbConnectionFactory connection)
         {
-            _connectionFactory = connectionFactory;
+            _connection = connection;
         }
 
         public async Task<Player> Create(Player player, int teamId)
         {
-            using (var connection = _connectionFactory.Create())
+            using (var connection = _connection.Create())
             {
                 await connection.OpenAsync();
                 using (var transaction = connection.BeginTransaction())
@@ -66,7 +67,7 @@ namespace DiamondLegends.DAL.Repositories
                             foreach (Position position in player.Positions)
                             {
                                 await connection.ExecuteAsync(
-                                    "INSERT INTO MM_Players_Positions (Player, Position) VALUES (@Player, @Position)",
+                                    "INSERT INTO Positions (Player, Position) VALUES (@Player, @Position)",
                                     new { Player = player.Id, Position = position },
                                     transaction
                                 );
@@ -88,6 +89,61 @@ namespace DiamondLegends.DAL.Repositories
                         throw new Exception("Erreur lors de la création du joueur", ex);
                     }
                 }
+            }
+        }
+
+        public async Task<List<Player>> GetAllByTeam(int teamId)
+        {
+            using(var connection = _connection.Create())
+            {
+                SqlCommand command = connection.CreateCommand();
+
+                command.CommandText = "SELECT P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id AS NationalityId, C.Name AS NationalityName, C.Alpha2 AS NationalityAlpha2, P.[Throw], P.Bat, P.Salary, P.Energy, P.Contact, P.Contact_Potential, P.[Power], P.Power_Potential, P.Running, P.Running_Potential, P.Defense, P.Defense_Potential, P.Mental, P.Mental_Potential, P.Stamina, P.Stamina_potential, P.[Control], P.Control_potential, P.Velocity, P.Velocity_potential, P.Movement, P.Movement_potential " +
+                    "FROM Players AS P " +
+                    "JOIN Countries AS C ON P.Nationality = C.Id " +
+                    "JOIN Rosters AS R ON P.Id = R.Player " +
+                    "JOIN Teams AS T ON R.Team = T.Id " +
+                    "WHERE R.Team = @TeamId";
+
+                command.Parameters.AddWithValue("@TeamId", teamId);
+
+                await connection.OpenAsync();
+
+                List<Player> players = new List<Player>();
+
+                using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync()) {
+                    List<Position> positions = await GetPositionsForPlayer((int)reader["Id"]);
+                    players.Add(PlayerMappers.FullPlayer(reader, positions));
+                }
+
+                return players;
+            }
+        }
+
+        public async Task<List<Position>> GetPositionsForPlayer(int playerId)
+        {
+            using (var connection = _connection.Create())
+            {
+                SqlCommand command = connection.CreateCommand();
+
+                command.CommandText = "SELECT Position FROM Positions WHERE Player = @PlayerId";
+
+                command.Parameters.AddWithValue("@PlayerId", playerId);
+
+                await connection.OpenAsync();
+
+                List<Position> positions = new List<Position>();
+
+                using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    positions.Add((Position)reader["Position"]);
+                }
+
+                return positions;
             }
         }
     }

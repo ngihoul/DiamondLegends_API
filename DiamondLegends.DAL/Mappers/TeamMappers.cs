@@ -6,9 +6,9 @@ namespace DiamondLegends.DAL.Mappers
 {
     public static class TeamMappers
     {
-        public static Team FullTeam(SqlDataReader reader)
+        public static Team FullTeam(SqlDataReader reader, List<Player>? players = null)
         {
-            return new Team()
+            Team team = new Team()
             {
                 Id = (int)reader["Id"],
                 Name = (string)reader["Name"],
@@ -42,8 +42,15 @@ namespace DiamondLegends.DAL.Mappers
                 Logo = reader["Logo"] is DBNull ? null : (string)reader["Logo"],
                 Color_1 = (string)reader["Color_1"],
                 Color_2 = (string)reader["Color_2"],
-                Color_3 = (string)reader["Color_3"]
+                Color_3 = (string)reader["Color_3"],
             };
+
+            if(players is not null)
+            {
+                team.Players = players;
+            }
+
+            return team;
         }
     }
 }

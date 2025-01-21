@@ -33,8 +33,8 @@ namespace DiamondLegends.API.Mappers
                 Logo = team.Logo,
                 Color_1 = team.Color_1,
                 Color_2 = team.Color_2,
-                Color_3 = team.Color_3
-                // public IEnumerable<Player> Players { get; set; }
+                Color_3 = team.Color_3,
+                Players = team.Players?.Select(p => p.ToViewList()).ToList()
             };
         }
 

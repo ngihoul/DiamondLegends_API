@@ -17,6 +17,6 @@ namespace DiamondLegends.Domain.Models
         public string Color_1 { get; set; }
         public string Color_2 { get; set; }
         public string Color_3 { get; set; } = "FFFFFF";
-        public List<Player> Players { get; set; } = new List<Player>();
+        public List<Player>? Players { get; set; } = new List<Player>();
     }
 }

@@ -10,10 +10,12 @@ namespace DiamondLegends.DAL.Repositories
     public class TeamRepository : ITeamRepository
     {
         private readonly IDbConnectionFactory _connection;
+        private readonly IPlayerRepository _playerRepository;
 
-        public TeamRepository(IDbConnectionFactory connection)
+        public TeamRepository(IDbConnectionFactory connection, IPlayerRepository playerRepository)
         {
             _connection = connection;
+            _playerRepository = playerRepository;
         }
 
         public async Task<Team> Create(Team team)
@@ -98,7 +100,8 @@ namespace DiamondLegends.DAL.Repositories
 
                 if (await reader.ReadAsync())
                 {
-                    team = TeamMappers.FullTeam(reader);
+                    List<Player> players = await _playerRepository.GetAllByTeam((int)reader["Id"]);
+                    team = TeamMappers.FullTeam(reader, players);
                 }
 
                 return team;
