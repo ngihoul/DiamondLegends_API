@@ -11,6 +11,7 @@ namespace DiamondLegends.DAL.Interfaces
     {
         public Task<Team?> GetById(int id);
         public Task<List<Team>> GetAllByUser(int userId);
+        public Task<List<Team>?> GetAllByLeague(int leagueId);
         public Task<Team> Create(Team team);
     }
 }

@@ -26,7 +26,7 @@ namespace DiamondLegends.API.Mappers
                 Owner = team.Owner.ToView(),
                 City = team.City,
                 Country = team.Country.Name,
-                League = team.League.Name,
+                League = team.League,
                 Season = team.Season,
                 CurrentDay = team.CurrentDay,
                 Budget = team.Budget,

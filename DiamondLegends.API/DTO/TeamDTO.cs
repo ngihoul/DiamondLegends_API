@@ -10,7 +10,7 @@ namespace DiamondLegends.API.DTO
         public UserView Owner { get; set; }
         public string City { get; set; }
         public string Country { get; set; }
-        public string League { get; set; }
+        public League League { get; set; }
         public int Season { get; set; }
         public int CurrentDay { get; set; }
         public Int64 Budget { get; set; }

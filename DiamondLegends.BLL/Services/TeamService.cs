@@ -19,6 +19,7 @@ namespace DiamondLegends.BLL.Services
         private readonly ICountryRepository _countryRepository;
         private readonly LeagueNameGenerator _leagueNameGenerator;
         private readonly TeamGenerator _teamGenerator;
+        private readonly SeasonGenerator _seasonGenerator;
         #endregion
 
         #region Constructor
@@ -30,7 +31,8 @@ namespace DiamondLegends.BLL.Services
 
             LeagueNameGenerator leagueNameGenerator,
             TeamGenerator teamGenerator
-            )
+,
+            SeasonGenerator seasonGenerator)
         {
             _teamRepository = teamRepository;
             _userRepository = userRepository;
@@ -39,6 +41,7 @@ namespace DiamondLegends.BLL.Services
 
             _leagueNameGenerator = leagueNameGenerator;
             _teamGenerator = teamGenerator;
+            _seasonGenerator = seasonGenerator;
         }
         #endregion
 
@@ -89,6 +92,16 @@ namespace DiamondLegends.BLL.Services
 
                     // Create Roster
                     team.Players = await _teamGenerator.GenerateRoster(team);
+
+                    // Generate Games for League
+                    List<Team>? teamsInLeague = await _teamRepository.GetAllByLeague(league.Id);
+
+                    if(teamsInLeague is null)
+                    {
+                        throw new Exception("Une erreur est survenue lors de la création de l'équipe");
+                    }
+
+                    league.Games = _seasonGenerator.Generate(teamsInLeague);
                     
                     transactionScope.Complete();
 

@@ -10,5 +10,6 @@ namespace DiamondLegends.DAL.Interfaces
     public interface ILeagueRepository
     {
         public Task<League> Create(League league);
+        public Task<League?> GetById(int id);
     }
 }
