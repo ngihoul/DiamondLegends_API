@@ -203,6 +203,7 @@ namespace DiamondLegends.BLL.Generators
                 blue = Random.Shared.Next(0, 181);
             }
 
+            // X2 to transform int to hexadecimal
             return $"{red:X2}{green:X2}{blue:X2}";
         }
 
@@ -220,7 +221,6 @@ namespace DiamondLegends.BLL.Generators
 
         public async Task<List<Player>> GenerateRoster(Team team)
         {
-            List<Player> roster = new List<Player>();
             Player newPlayer = new Player();
 
             // 5 SP
@@ -282,7 +282,7 @@ namespace DiamondLegends.BLL.Generators
                 newPlayer = await CreatePlayer(OutfieldPositions, team);
             }
 
-            return roster;
+            return team.Players;
         }
 
         private async Task<Player> CreatePlayer(List<Position> positions, Team team)

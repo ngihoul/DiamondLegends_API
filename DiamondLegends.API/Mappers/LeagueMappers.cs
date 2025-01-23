@@ -1,5 +1,6 @@
 ﻿using DiamondLegends.API.DTO;
 using DiamondLegends.Domain.Models;
+using System.Runtime.CompilerServices;
 
 namespace DiamondLegends.API.Mappers
 {
@@ -12,6 +13,14 @@ namespace DiamondLegends.API.Mappers
                 Id = league.Id,
                 Name = league.Name,
                 Teams = league.Teams.Select(t => t.ToViewList()).ToList(),
+            };
+        }
+
+        public static LeagueViewList ToViewList(this League league) {
+            return new LeagueViewList()
+            {
+                Id = league.Id,
+                Name = league.Name,
             };
         }
     }

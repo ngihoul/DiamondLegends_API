@@ -7,8 +7,6 @@ using DiamondLegends.DAL.Factories;
 using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.DAL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -66,13 +64,17 @@ builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 
 builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
+builder.Services.AddScoped<ILeagueService, LeagueService>();
 
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+
 builder.Services.AddScoped<LeagueNameGenerator>();
 builder.Services.AddScoped<TeamGenerator>();
 builder.Services.AddScoped<PlayerGenerator>();
+builder.Services.AddScoped<SeasonGenerator>();
 
 builder.Services.AddScoped<AuthService>();
 

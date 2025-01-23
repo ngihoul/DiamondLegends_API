@@ -98,10 +98,10 @@ namespace DiamondLegends.BLL.Services
 
                     if(teamsInLeague is null)
                     {
-                        throw new Exception("Une erreur est survenue lors de la création de l'équipe");
+                        throw new Exception($"Aucune équipe dans la ligue {team.League.Id}");
                     }
 
-                    league.Games = _seasonGenerator.Generate(teamsInLeague);
+                    league.Games = await _seasonGenerator.Generate(teamsInLeague);
                     
                     transactionScope.Complete();
 

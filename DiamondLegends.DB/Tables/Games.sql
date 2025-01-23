@@ -1,0 +1,18 @@
+﻿CREATE TABLE [dbo].[Games]
+(
+	[Id] INT IDENTITY,
+	[Date] DATETIME NOT NULL,
+	[Season] INT NOT NULL,
+	Away INT NOT NULL,
+	Home INT NOT NULL,
+	Away_runs INT NOT NULL DEFAULT 0,
+	Home_runs INT NOT NULL DEFAULT 0,
+	Away_hits INT NOT NULL DEFAULT 0,
+	Home_hits INT NOT NULL DEFAULT 0,
+	Away_errors INT NOT NULL DEFAULT 0,
+	Home_errors INT NOT NULL DEFAULT 0,
+	
+	CONSTRAINT PK_Games PRIMARY KEY ([Id]),
+	CONSTRAINT FK_Games_Teams_Away FOREIGN KEY (Away) REFERENCES Teams([Id]),
+	CONSTRAINT FK_Games_Teams_Home FOREIGN KEY (Home) REFERENCES Teams([Id])
+)
