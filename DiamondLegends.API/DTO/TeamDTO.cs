@@ -7,6 +7,7 @@ namespace DiamondLegends.API.DTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Abbreviation { get; set; }
         public UserView Owner { get; set; }
         public string City { get; set; }
         public string Country { get; set; }
@@ -25,6 +26,7 @@ namespace DiamondLegends.API.DTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Abbreviation { get; set; }
         public UserView Owner { get; set; }
         public string Country { get; set; }
         public string? Logo { get; set; }
@@ -36,6 +38,11 @@ namespace DiamondLegends.API.DTO
         // TODO : ajouter annotations
         [Required]
         public string Name { get; set; }
+
+        [Required]
+        [MinLength(2)]
+        [MaxLength(5)]
+        public string Abbreviation { get; set; }
 
         [Required]
         public string City { get; set; }

@@ -6,6 +6,7 @@ namespace DiamondLegends.Domain.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Abbreviation { get; set; }
         public User Owner { get; set; }
         public string City { get; set; }
         public Country Country { get; set; }

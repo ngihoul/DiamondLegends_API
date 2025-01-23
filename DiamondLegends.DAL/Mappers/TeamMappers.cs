@@ -12,6 +12,7 @@ namespace DiamondLegends.DAL.Mappers
             {
                 Id = (int)reader["Id"],
                 Name = (string)reader["Name"],
+                Abbreviation = (string)reader["Abbreviation"],
                 Owner = new User()
                 {
                     Id = (int)reader["OwnerId"],

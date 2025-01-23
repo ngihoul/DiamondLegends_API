@@ -67,6 +67,7 @@
     <Build Include="Tables\Players.sql" />
     <Build Include="Tables\Rosters.sql" />
     <Build Include="Tables\Positions.sql" />
+    <Build Include="Tables\Games.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Data.sql" />

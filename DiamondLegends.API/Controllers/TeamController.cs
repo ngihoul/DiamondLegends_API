@@ -14,7 +14,6 @@ namespace DiamondLegends.API.Controllers
     public class TeamController : ControllerBase
     {
         private readonly ITeamService _teamService;
-        private readonly IUserService _userService;
 
         public TeamController(ITeamService teamService)
         {

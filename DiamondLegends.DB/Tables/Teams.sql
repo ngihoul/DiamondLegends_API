@@ -2,6 +2,7 @@
 (
 	[Id] INT IDENTITY,
 	[Name] NVARCHAR(250) NOT NULL,
+	Abbreviation NVARCHAR(5) NOT NULL,
 	[Owner] INT NOT NULL,
 	City NVARCHAR(120) NOT NULL,
 	Country INT NOT NULL,
