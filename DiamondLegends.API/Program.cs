@@ -70,6 +70,7 @@ builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IGameService, GameService>();
 
 builder.Services.AddScoped<LeagueNameGenerator>();
 builder.Services.AddScoped<TeamGenerator>();

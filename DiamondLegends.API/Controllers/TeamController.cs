@@ -5,7 +5,6 @@ using DiamondLegends.API.Mappers;
 using DiamondLegends.Domain.Models;
 using DiamondLegends.BLL.Interfaces;
 using DiamondLegends.API.Extensions;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace DiamondLegends.API.Controllers
 {

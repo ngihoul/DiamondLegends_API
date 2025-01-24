@@ -1,6 +1,4 @@
-﻿using DiamondLegends.Domain.Models;
-
-namespace DiamondLegends.API.DTO
+﻿namespace DiamondLegends.API.DTO
 {
     public class LeagueView
     {

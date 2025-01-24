@@ -1,5 +1,6 @@
 ﻿using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Models;
+using System.Text;
 
 namespace DiamondLegends.BLL.Generators
 {
@@ -13,8 +14,9 @@ namespace DiamondLegends.BLL.Generators
             DateTime startSeasonDate = new DateTime(currentSeasonYear, 03, 27);
             DateTime dayDate = startSeasonDate;
 
-            int NB_TOTAL_DAYS = (teams.Count() - 1) * 7;
-            int NB_GAMES_PER_DAY = teams.Count() / 2;
+            int NB_TEAMS = teams.Count;
+            int NB_TOTAL_DAYS = 7 * (NB_TEAMS - 1);
+            int NB_GAMES_PER_DAY = NB_TEAMS / 2;
             int NB_GAMES_PER_SEASON = NB_GAMES_PER_DAY * NB_TOTAL_DAYS;
             double DAYS_BETWEEN_GAMES = Math.Ceiling((double)NB_DAYS_IN_SEASON / NB_TOTAL_DAYS);
 
@@ -28,32 +30,26 @@ namespace DiamondLegends.BLL.Generators
             {
                 switchDaysBetween = !switchDaysBetween;
 
-                for (int match = 0; match < NB_GAMES_PER_DAY; match++)
+                for (int i = 0; i < NB_TEAMS / 2; i++)
                 {
-                    int homeIndex = (match + day) % teams.Count;
-                    int awayIndex = (homeIndex + 1 + match) % teams.Count;
+                    Team team1 = teams[i];
+                    Team team2 = teams[NB_TEAMS - 1 - i];
 
-                    bool isHome = (day + match) % 2 == 0;
-
-                    Game newGame = new Game();
-                    newGame.Season = currentSeasonYear;
-
-                    if (isHome)
+                    Game newGame = new Game()
                     {
-                        newGame.Home = teams[homeIndex];
-                        newGame.Away = teams[awayIndex];
-                    }
-                    else
-                    {
-                        newGame.Home = teams[awayIndex];
-                        newGame.Away = teams[homeIndex];
-                    }
+                        Date = dayDate,
+                        Season = currentSeasonYear,
+                        Away = day % 2 == 0 ? team1 : team2,
+                        Home = day % 2 == 0 ? team2 : team1,
+                    };
 
-                    newGame.Date = dayDate;
-                    // Save in DB
                     newGame = await _gameRepository.Create(newGame);
                     schedule.Add(newGame);
                 }
+
+                Team lastTeam = teams[NB_TEAMS - 1];
+                teams.RemoveAt(NB_TEAMS - 1);
+                teams.Insert(1, lastTeam);
 
                 dayDate = dayDate.AddDays(switchDaysBetween ? DAYS_BETWEEN_GAMES - 1 : DAYS_BETWEEN_GAMES);
             }

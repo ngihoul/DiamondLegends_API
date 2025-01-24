@@ -24,10 +24,10 @@ namespace DiamondLegends.DAL.Repositories
                 await connection.OpenAsync();
 
                 team.Id = await connection.QuerySingleAsync<int>(
-                                "INSERT INTO Teams(Name, Abbreviation, Owner, City, Country, League, Season, CurrentDay, Budget, Logo, Color_1, Color_2, Color_3) " +
+                                "INSERT INTO Teams(Name, Abbreviation, Owner, City, Country, League, Season, InGameDate, Budget, Logo, Color_1, Color_2, Color_3) " +
                                 "OUTPUT INSERTED.Id " +
-                                "VALUES (@Name, @Abbreviation, @Owner, @City, @Country, @League, @Season, @CurrentDay, @Budget, @Logo, @Color_1, @Color_2, @Color_3)",
-                                new { Name = team.Name, Abbreviation = team.Abbreviation, Owner = team.Owner.Id, City = team.City, Country = team.Country.Id, League = team.League.Id, Season = team.Season, CurrentDay = team.CurrentDay, Budget = team.Budget, Logo = team.Logo, Color_1 = team.Color_1, Color_2 = team.Color_2, Color_3 = team.Color_3 }
+                                "VALUES (@Name, @Abbreviation, @Owner, @City, @Country, @League, @Season, @InGameDate, @Budget, @Logo, @Color_1, @Color_2, @Color_3)",
+                                new { Name = team.Name, Abbreviation = team.Abbreviation, Owner = team.Owner.Id, City = team.City, Country = team.Country.Id, League = team.League.Id, Season = team.Season, InGameDate = team.InGameDate, Budget = team.Budget, Logo = team.Logo, Color_1 = team.Color_1, Color_2 = team.Color_2, Color_3 = team.Color_3 }
                             );
 
                 return team;
@@ -43,7 +43,7 @@ namespace DiamondLegends.DAL.Repositories
                 List<Team> teams = new List<Team>();
 
                 command.CommandText = "SELECT " +
-                    "T.Id, T.Name, T.Abbreviation, T.City, T.Logo, T.Color_1, T.Color_2, T.Color_3, T.Season, T.CurrentDay, T.Budget, " +
+                    "T.Id, T.Name, T.Abbreviation, T.City, T.Logo, T.Color_1, T.Color_2, T.Color_3, T.Season, T.InGameDate, T.Budget, " +
                     "U.Id AS OwnerId, U.Username, U.Email, " +
                     "CO.Id AS OwnerCountryId, CO.Name AS OwnerCountryName, CO.Alpha2 AS OwnerCountryAlpha2, " +
                     "L.Id AS LeagueId, L.Name AS LeagueName, " +
@@ -82,7 +82,7 @@ namespace DiamondLegends.DAL.Repositories
                 List<Team> teams = new List<Team>();
 
                 command.CommandText = "SELECT " +
-                    "T.Id, T.Name, T.Abbreviation, T.City, T.Logo, T.Color_1, T.Color_2, T.Color_3, T.Season, T.CurrentDay, T.Budget, " +
+                    "T.Id, T.Name, T.Abbreviation, T.City, T.Logo, T.Color_1, T.Color_2, T.Color_3, T.Season, T.InGameDate, T.Budget, " +
                     "U.Id AS OwnerId, U.Username, U.Email, " +
                     "CO.Id AS OwnerCountryId, CO.Name AS OwnerCountryName, CO.Alpha2 AS OwnerCountryAlpha2, " +
                     "L.Id AS LeagueId, L.Name AS LeagueName, " +
@@ -119,7 +119,7 @@ namespace DiamondLegends.DAL.Repositories
                 Team? team = null;
 
                 command.CommandText = "SELECT " +
-                    "T.Id, T.Name, T.Abbreviation, T.City, T.Logo, T.Color_1, T.Color_2, T.Color_3, T.Season, T.CurrentDay, T.Budget, " +
+                    "T.Id, T.Name, T.Abbreviation, T.City, T.Logo, T.Color_1, T.Color_2, T.Color_3, T.Season, T.InGameDate, T.Budget, " +
                     "U.Id AS OwnerId, U.Username, U.Email, " +
                     "CO.Id AS OwnerCountryId, CO.Name AS OwnerCountryName, CO.Alpha2 AS OwnerCountryAlpha2, " +
                     "L.Id AS LeagueId, L.Name AS LeagueName, " +

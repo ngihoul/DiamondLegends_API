@@ -98,7 +98,7 @@ namespace DiamondLegends.DAL.Repositories
             {
                 SqlCommand command = connection.CreateCommand();
 
-                command.CommandText = "SELECT P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id AS NationalityId, C.Name AS NationalityName, C.Alpha2 AS NationalityAlpha2, P.[Throw], P.Bat, P.Salary, P.Energy, P.Contact, P.Contact_Potential, P.[Power], P.Power_Potential, P.Running, P.Running_Potential, P.Defense, P.Defense_Potential, P.Mental, P.Mental_Potential, P.Stamina, P.Stamina_potential, P.[Control], P.Control_potential, P.Velocity, P.Velocity_potential, P.Movement, P.Movement_potential, T.Id AS TeamId, T.Name AS TeamName " +
+                command.CommandText = "SELECT P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id AS NationalityId, C.Name AS NationalityName, C.Alpha2 AS NationalityAlpha2, P.[Throw], P.Bat, P.Salary, P.Energy, P.Contact, P.Contact_Potential, P.[Power], P.Power_Potential, P.Running, P.Running_Potential, P.Defense, P.Defense_Potential, P.Mental, P.Mental_Potential, P.Stamina, P.Stamina_potential, P.[Control], P.Control_potential, P.Velocity, P.Velocity_potential, P.Movement, P.Movement_potential, T.Id AS TeamId, T.Name AS TeamName, T.Abbreviation AS TeamAbbreviation " +
                     "FROM Players AS P " +
                     "JOIN Countries AS C ON P.Nationality = C.Id " +
                     "JOIN Rosters AS R ON P.Id = R.Player " +

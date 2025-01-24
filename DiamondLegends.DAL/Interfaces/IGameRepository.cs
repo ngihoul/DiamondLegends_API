@@ -10,5 +10,6 @@ namespace DiamondLegends.DAL.Interfaces
     public interface IGameRepository
     {
         public Task<Game> Create(Game game);
+        public Task<List<Game>> GetAll(GameQuery query);
     }
 }

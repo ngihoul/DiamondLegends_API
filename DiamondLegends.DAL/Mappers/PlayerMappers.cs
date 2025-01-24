@@ -51,7 +51,8 @@ namespace DiamondLegends.DAL.Mappers
                 Team = new Team()
                 {
                     Id = (int)reader["TeamId"],
-                    Name = (string)reader["TeamName"]
+                    Name = (string)reader["TeamName"],
+                    Abbreviation = (string)reader["TeamAbbreviation"]
                 }
             };
         }

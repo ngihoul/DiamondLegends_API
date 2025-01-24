@@ -128,15 +128,19 @@ namespace DiamondLegends.BLL.Generators
         #region Methods
         public async Task<Team> Generate(League league, int season)
         {
+            string Name = GenerateRandomName();
+            string City = GenerateRandomCity();
+
             Team newTeam = new Team()
             {
-                Name = GenerateRandomName(),
+                Name = Name,
                 Owner = await GetBotUser(),
-                City = GenerateRandomCity(),
+                City = City,
+                Abbreviation = GenerateAbbreviation(Name, City),
                 Country = await ChooseRandomCountry(),
                 League = league,
                 Season = season,
-                CurrentDay = 0,
+                InGameDate = new DateTime(DateTime.Now.Year, 3, 1),
                 Budget = 1000000,
                 Logo = null,
                 Color_1 = GenerateRandomColor("light"),
@@ -295,6 +299,16 @@ namespace DiamondLegends.BLL.Generators
             team.Players.Add(playerToAdd);
 
             return playerToAdd;
+        }
+
+        private string GenerateAbbreviation(string name, string city)
+        {
+            // Get First Char and each char after space
+            string abbreviation = name.Substring(0, 1).ToUpper();
+            abbreviation += name.Substring(name.IndexOf(' ') + 1, 1).ToUpper();
+            abbreviation += city.Substring(0, 1).ToUpper();
+
+            return abbreviation;
         }
         #endregion
     }

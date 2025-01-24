@@ -1,5 +1,4 @@
 ﻿using DiamondLegends.API.DTO;
-using DiamondLegends.Domain.Enums;
 using DiamondLegends.Domain.Models;
 
 namespace DiamondLegends.API.Mappers

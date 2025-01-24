@@ -1,5 +1,4 @@
-﻿using DiamondLegends.Domain.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DiamondLegends.API.DTO
 {
@@ -13,7 +12,7 @@ namespace DiamondLegends.API.DTO
         public string Country { get; set; }
         public LeagueViewList League { get; set; }
         public int Season { get; set; }
-        public int CurrentDay { get; set; }
+        public DateTime InGameDate { get; set; }
         public Int64 Budget { get; set; }
         public string? Logo { get; set; }
         public string Color_1 { get; set; }
@@ -60,6 +59,13 @@ namespace DiamondLegends.API.DTO
     }
 
     public class TeamViewPlayer
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Abbreviation { get; set; }
+    }
+
+    public class TeamViewCalendar
     {
         public int Id { get; set; }
         public string Name { get; set; }

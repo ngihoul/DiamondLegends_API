@@ -21,4 +21,13 @@ namespace DiamondLegends.Domain.Models
         public int AwayErrors { get; set; } = 0;
         public int HomeErrors { get; set; } = 0;
     }
+
+    public class GameQuery
+    {
+        public int? Season { get; set; } = null;
+        public int? LeagueId { get; set; } = null;
+        public int? TeamId { get; set; } = null;
+        public int? Month { get; set; } = null;
+        public int? Day { get; set; } = null;
+    }
 }

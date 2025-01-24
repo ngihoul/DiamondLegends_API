@@ -81,6 +81,8 @@ namespace DiamondLegends.BLL.Services
                     int season = DateTime.Now.Year;
                     team.Season = season;
 
+                    team.InGameDate = new DateTime(team.Season, 3, 1);
+
                     // Create Opponents & link them to the League
                     for (int i = 0; i < NB_OPPONENTS; i++)
                     {

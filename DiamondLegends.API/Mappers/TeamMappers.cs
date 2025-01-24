@@ -10,6 +10,7 @@ namespace DiamondLegends.API.Mappers
             return new Team()
             {
                 Name = teamForm.Name,
+                Abbreviation = teamForm.Abbreviation,
                 City = teamForm.City,
                 Logo = teamForm.Logo,
                 Color_1 = teamForm.Color_1,
@@ -23,12 +24,13 @@ namespace DiamondLegends.API.Mappers
             {
                 Id = team.Id,
                 Name = team.Name,
+                Abbreviation = team.Abbreviation,
                 Owner = team.Owner.ToView(),
                 City = team.City,
                 Country = team.Country.Name,
                 League = team.League.ToViewList(),
                 Season = team.Season,
-                CurrentDay = team.CurrentDay,
+                InGameDate = team.InGameDate,
                 Budget = team.Budget,
                 Logo = team.Logo,
                 Color_1 = team.Color_1,
@@ -44,6 +46,7 @@ namespace DiamondLegends.API.Mappers
             {
                 Id = team.Id,
                 Name = team.Name,
+                Abbreviation = team.Abbreviation,   
                 Owner = team.Owner.ToView(),
                 Country = team.Country.Name,
                 Logo = team.Logo,
@@ -56,7 +59,18 @@ namespace DiamondLegends.API.Mappers
             return new TeamViewPlayer()
             {
                 Id = team.Id,
-                Name = team.Name
+                Name = team.Name,
+                Abbreviation = team.Abbreviation
+            };
+        }
+
+        public static TeamViewCalendar ToViewCalendar(this Team team)
+        {
+            return new TeamViewCalendar()
+            {
+                Id = team.Id,
+                Name = team.Name,
+                Abbreviation = team.Abbreviation,
             };
         }
     }
