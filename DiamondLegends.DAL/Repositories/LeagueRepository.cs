@@ -25,10 +25,10 @@ namespace DiamondLegends.DAL.Repositories
                 await connection.OpenAsync();
 
                 league.Id = await connection.QuerySingleAsync<int>(
-                    "INSERT INTO Leagues(Name) " +
+                    "INSERT INTO Leagues(Name, In_game_date) " +
                     "OUTPUT INSERTED.Id " +
                     "VALUES (@Name)",
-                    league
+                    new { Name = league.Name, In_game_date = league.InGameDate }
                 );
 
                 return league;
@@ -58,7 +58,6 @@ namespace DiamondLegends.DAL.Repositories
                     List<Team>? teams = await _teamRepository.GetAllByLeague((int)reader["Id"]);
                     league = LeagueMappers.FullLeague(reader, teams);
                 }
-
 
                 return league;
             }

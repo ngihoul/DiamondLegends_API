@@ -12,6 +12,7 @@ namespace DiamondLegends.API.Mappers
             {
                 Id = league.Id,
                 Name = league.Name,
+                InGameDate = league.InGameDate,
                 Teams = league.Teams.Select(t => t.ToViewList()).ToList(),
             };
         }

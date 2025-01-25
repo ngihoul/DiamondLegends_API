@@ -16,6 +16,7 @@ namespace DiamondLegends.DAL.Mappers
             {
                 Id = (int)reader["Id"],
                 Name = (string)reader["Name"],
+                InGameDate = (DateTime)reader["In_game_date"],
                 Teams = teams
             };
         }

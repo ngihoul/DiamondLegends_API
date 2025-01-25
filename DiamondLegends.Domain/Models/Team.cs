@@ -12,7 +12,6 @@ namespace DiamondLegends.Domain.Models
         public Country Country { get; set; }
         public League League { get; set; }
         public int Season { get; set; }
-        public DateTime InGameDate { get; set; }
         public Int64 Budget { get; set; } = 1000000;
         public string? Logo { get; set; } = null;
         public string Color_1 { get; set; }

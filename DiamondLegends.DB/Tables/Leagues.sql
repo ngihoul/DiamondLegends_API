@@ -2,6 +2,7 @@
 (
 	[Id] INT IDENTITY,
 	[Name] NVARCHAR(120) NOT NULL,
+	In_game_date DATE NOT NULL,
 
 	CONSTRAINT PK_Leagues PRIMARY KEY (Id)
 )

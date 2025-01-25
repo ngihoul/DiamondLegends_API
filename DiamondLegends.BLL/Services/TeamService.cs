@@ -71,17 +71,20 @@ namespace DiamondLegends.BLL.Services
 
                     team.Country = country;
 
-                    // Create & Link to a League
-                    League newLeague = new League() { Name = _leagueNameGenerator.Generate() };
-                    League league = await _leagueRepository.Create(newLeague);
-
-                    team.League = league;
-
                     // Init Season = currentYear
                     int season = DateTime.Now.Year;
                     team.Season = season;
 
-                    team.InGameDate = new DateTime(team.Season, 3, 15);
+                    // Create & Link to a League
+                    League newLeague = new League()
+                    {
+                        Name = _leagueNameGenerator.Generate(),
+                        InGameDate = new DateTime(team.Season, 03, 15)
+                    };
+
+                    League league = await _leagueRepository.Create(newLeague);
+
+                    team.League = league;
 
                     // Create Opponents & link them to the League
                     for (int i = 0; i < NB_OPPONENTS; i++)

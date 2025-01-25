@@ -38,7 +38,6 @@ namespace DiamondLegends.DAL.Mappers
                     Name = (string)reader["LeagueName"],
                 },
                 Season = (int)reader["Season"],
-                InGameDate = (DateTime)reader["InGameDate"],
                 Budget = Convert.ToInt64(reader["Budget"]),
                 Logo = reader["Logo"] is DBNull ? null : (string)reader["Logo"],
                 Color_1 = (string)reader["Color_1"],

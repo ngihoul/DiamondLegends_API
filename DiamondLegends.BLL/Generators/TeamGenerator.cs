@@ -140,7 +140,6 @@ namespace DiamondLegends.BLL.Generators
                 Country = await ChooseRandomCountry(),
                 League = league,
                 Season = season,
-                InGameDate = new DateTime(DateTime.Now.Year, 3, 15),
                 Budget = 1000000,
                 Logo = null,
                 Color_1 = GenerateRandomColor("light"),

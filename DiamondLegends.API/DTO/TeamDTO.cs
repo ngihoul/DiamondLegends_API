@@ -12,7 +12,6 @@ namespace DiamondLegends.API.DTO
         public string Country { get; set; }
         public LeagueViewList League { get; set; }
         public int Season { get; set; }
-        public DateTime InGameDate { get; set; }
         public Int64 Budget { get; set; }
         public string? Logo { get; set; }
         public string Color_1 { get; set; }

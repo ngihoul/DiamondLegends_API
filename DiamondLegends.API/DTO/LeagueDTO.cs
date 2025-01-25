@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public DateTime InGameDate { get; set; }
         public List<TeamViewList> Teams { get; set; } = new List<TeamViewList>();
     }
 

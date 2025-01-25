@@ -30,7 +30,6 @@ namespace DiamondLegends.API.Mappers
                 Country = team.Country.Name,
                 League = team.League.ToViewList(),
                 Season = team.Season,
-                InGameDate = team.InGameDate,
                 Budget = team.Budget,
                 Logo = team.Logo,
                 Color_1 = team.Color_1,
