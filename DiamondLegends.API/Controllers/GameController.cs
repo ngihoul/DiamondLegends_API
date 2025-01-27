@@ -9,15 +9,8 @@ namespace DiamondLegends.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GameController : ControllerBase
+    public class GameController(IGameService _gameService) : ControllerBase
     {
-        private readonly IGameService _gameService;
-
-        public GameController(IGameService gameService)
-        {
-            _gameService = gameService;
-        }
-
         [HttpGet]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
