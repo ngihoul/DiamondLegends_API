@@ -23,7 +23,7 @@ namespace DiamondLegends.API.Controllers
         {
             if (id <= 0)
             {
-                throw new ArgumentNullException("L'id n'est pas valable");
+                throw new ArgumentNullException("L'id n'est pas valable.");
             }
 
             Player player = await _playerService.GetById(id);
