@@ -68,6 +68,8 @@
     <Build Include="Tables\Rosters.sql" />
     <Build Include="Tables\Positions.sql" />
     <Build Include="Tables\Games.sql" />
+    <Build Include="Tables\Game_Offensive_Stats.sql" />
+    <Build Include="Tables\Game_Pitching_Stats_1.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Data.sql" />
