@@ -9,15 +9,8 @@ namespace DiamondLegends.API.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(IUserService _userService) : ControllerBase
     {
-        private readonly IUserService _userService;
-
-        public UserController(IUserService userService)
-        {
-            _userService = userService;
-        }
-
         [HttpPost("auth/register")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -27,11 +20,12 @@ namespace DiamondLegends.API.Controllers
         {
             if(userForm is null || !ModelState.IsValid)
             {
-                throw new ArgumentNullException("Données invalides");
+                throw new ArgumentNullException("Données invalides.");
             }
 
             User user = await _userService.Register(userForm.ToUser(), userForm.NationalityId);
 
+            // Using CreatedAtAction and create a Get action for the user
             return Ok(user.ToView());
         }
 

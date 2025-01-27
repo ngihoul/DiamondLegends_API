@@ -57,7 +57,7 @@ namespace DiamondLegends.BLL.Services
 
                     if (user is null)
                     {
-                        throw new ArgumentException("Cet utilisateur n'existe pas");
+                        throw new ArgumentException("Cet utilisateur n'existe pas.");
                     }
 
                     team.Owner = user;
@@ -66,7 +66,7 @@ namespace DiamondLegends.BLL.Services
                     Country? country = await _countryRepository.GetById(countryId);
 
                     if (country is null) { 
-                        throw new ArgumentException("Le pays n'existe pas");
+                        throw new ArgumentException("Le pays n'existe pas.");
                     }
 
                     team.Country = country;
@@ -103,7 +103,7 @@ namespace DiamondLegends.BLL.Services
 
                     if(teamsInLeague is null)
                     {
-                        throw new Exception($"Aucune équipe dans la ligue {team.League.Id}");
+                        throw new ArgumentException($"Aucune équipe dans la ligue {team.League.Id}.");
                     }
 
                     league.Games = await _seasonGenerator.Generate(teamsInLeague);
@@ -114,23 +114,18 @@ namespace DiamondLegends.BLL.Services
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Une erreur est survenue lors de la création de l'équipe", e);
+                    throw new Exception("Une erreur est survenue lors de la création de l'équipe.", e);
                 }
             }
         }
 
         public async Task<Team> Get(int id)
         {
-            if (id <= 0)
-            {
-                throw new ArgumentNullException("Cette équipe n'existe pas");
-            }
-
             Team? team = await _teamRepository.GetById(id);
 
             if (team is null)
             {
-                throw new ArgumentException("Cette équipe n'existe pas");
+                throw new ArgumentException("Cette équipe n'existe pas.");
             }
 
             return team;
@@ -142,7 +137,7 @@ namespace DiamondLegends.BLL.Services
 
             if(user is null)
             {
-                throw new ArgumentException("Cet utilisateur n'existe pas");
+                throw new ArgumentException("Cet utilisateur n'existe pas.");
             }
 
             List<Team>? teams = await _teamRepository.GetAllByUser(userId);
