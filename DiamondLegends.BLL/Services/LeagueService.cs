@@ -15,17 +15,11 @@ namespace DiamondLegends.BLL.Services
 
         public async Task<League> GetById(int id)
         {
-            if (id <= 0)
-            {
-                // TODO : harmoniser message d'erreur - CustomException ?!
-                throw new ArgumentNullException("L'id ne peut pas être null");
-            }
-
             League? league = await _leagueRepository.GetById(id);
 
             if (league is null)
             {
-                throw new ArgumentException("La ligue n'existe pas");
+                throw new ArgumentException("La ligue n'existe pas.");
             }
 
             return league;

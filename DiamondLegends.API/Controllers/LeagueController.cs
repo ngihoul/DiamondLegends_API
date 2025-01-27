@@ -21,6 +21,12 @@ namespace DiamondLegends.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<LeagueView>> Get([FromRoute] int id)
         {
+            if (id <= 0)
+            {
+                // TODO : harmoniser message d'erreur - CustomException ?!
+                throw new ArgumentNullException("L'id n'est pas valable.");
+            }
+
             League league = await _leagueService.GetById(id);
 
             return Ok(league.ToView());
