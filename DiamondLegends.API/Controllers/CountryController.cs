@@ -7,15 +7,8 @@ namespace DiamondLegends.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CountryController : ControllerBase
+    public class CountryController(ICountryService _countryService) : ControllerBase
     {
-        private readonly ICountryService _countryService;
-
-        public CountryController(ICountryService countryService)
-        {
-            _countryService = countryService;
-        }
-
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
