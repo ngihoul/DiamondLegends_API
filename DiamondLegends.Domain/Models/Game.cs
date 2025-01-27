@@ -9,9 +9,13 @@ namespace DiamondLegends.Domain.Models
 {
     public class Game
     {
+        public static int TO_BE_PLAYED = 0;
+        public static int PLAYED = 1;
+
         public int Id { get; set; }
         public DateTime Date { get; set; }
         public int Season { get; set; }
+        public int Status { get; set; } = 0;
         public Team Away { get; set; }
         public Team Home { get; set; }
         public int AwayRuns { get; set; } = 0;
