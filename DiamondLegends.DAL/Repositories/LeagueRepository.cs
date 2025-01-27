@@ -27,7 +27,7 @@ namespace DiamondLegends.DAL.Repositories
                 league.Id = await connection.QuerySingleAsync<int>(
                     "INSERT INTO Leagues(Name, In_game_date) " +
                     "OUTPUT INSERTED.Id " +
-                    "VALUES (@Name)",
+                    "VALUES (@Name, @In_game_date)",
                     new { Name = league.Name, In_game_date = league.InGameDate }
                 );
 
