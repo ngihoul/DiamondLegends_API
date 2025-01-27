@@ -23,9 +23,9 @@ namespace DiamondLegends.BLL.Services
 
             League? league = await _leagueRepository.GetById(id);
 
-            if (league == null)
+            if (league is null)
             {
-                throw new ArgumentNullException("La ligue n'existe pas");
+                throw new ArgumentException("La ligue n'existe pas");
             }
 
             return league;
