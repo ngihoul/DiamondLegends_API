@@ -62,5 +62,20 @@ namespace DiamondLegends.DAL.Repositories
                 return league;
             }
         }
+
+        public async Task<League?> UpdateInGameDate(League league)
+        {
+            int rowAffected = 0;
+
+            using (var connection = _connection.Create())
+            {
+                await connection.OpenAsync();
+
+                var sql1 = "UPDATE Leagues SET In_game_date = @InGameDate WHERE Id = @leagueId";
+                rowAffected = await connection.ExecuteAsync(sql1, new { leagueId = league.Id, InGameDate = league.InGameDate });
+            }
+
+            return rowAffected > 0 ? league : null;
+        }
     }
 }

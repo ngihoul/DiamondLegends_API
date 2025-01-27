@@ -10,5 +10,7 @@ namespace DiamondLegends.BLL.Interfaces
     public interface ILeagueService
     {
         public Task<League> GetById(int id);
+        public Task<League> NextDay(int leagueId);
+        public Task<League> NextGame(int leagueId);
     }
 }

@@ -11,5 +11,6 @@ namespace DiamondLegends.DAL.Interfaces
     {
         public Task<League> Create(League league);
         public Task<League?> GetById(int id);
+        public Task<League?> UpdateInGameDate(League league);
     }
 }
