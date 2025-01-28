@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondLegends.BLL.Interfaces
+namespace DiamondLegends.BLL.Services.Interfaces
 {
     public interface ICountryService
     {

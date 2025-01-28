@@ -1,6 +1,6 @@
 ﻿using DiamondLegends.Domain.Models;
 
-namespace DiamondLegends.BLL.Interfaces
+namespace DiamondLegends.BLL.Services.Interfaces
 {
     public interface ITeamService
     {

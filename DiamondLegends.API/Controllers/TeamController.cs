@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using DiamondLegends.API.Mappers;
 using DiamondLegends.Domain.Models;
-using DiamondLegends.BLL.Interfaces;
 using DiamondLegends.API.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using static Dapper.SqlMapper;
+using DiamondLegends.BLL.Services.Interfaces;
 
 namespace DiamondLegends.API.Controllers
 {

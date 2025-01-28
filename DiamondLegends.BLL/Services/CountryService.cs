@@ -1,4 +1,4 @@
-﻿using DiamondLegends.BLL.Interfaces;
+﻿using DiamondLegends.BLL.Services.Interfaces;
 using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Models;
 
