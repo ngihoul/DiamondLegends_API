@@ -33,6 +33,18 @@ namespace DiamondLegends.DAL.Repositories
             }
         }
 
+        public async Task<Game?> GetById(int id)
+        {
+            using(var connection = _connection.Create())
+            {
+                await connection.OpenAsync();
+                return await connection.QuerySingleAsync<Game>(
+                    "SELECT * FROM Games WHERE Id = @Id",
+                    new { Id = id }
+                );
+            }
+        }
+
         public async Task<List<Game>?> GetAll(GameQuery query)
         {
             using (var connection = _connection.Create())

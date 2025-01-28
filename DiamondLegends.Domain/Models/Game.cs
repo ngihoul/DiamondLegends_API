@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace DiamondLegends.Domain.Models
+﻿namespace DiamondLegends.Domain.Models
 {
     public class Game
     {
@@ -24,6 +17,8 @@ namespace DiamondLegends.Domain.Models
         public int HomeHits { get; set; } = 0;
         public int AwayErrors { get; set; } = 0;
         public int HomeErrors { get; set; } = 0;
+        public List<GameOffensiveStats>? OffensiveStats { get; set; }
+        public List<GamePitchingStats>? PitchingStats { get; set; }
     }
 
     public class GameQuery

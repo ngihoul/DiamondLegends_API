@@ -39,5 +39,25 @@ namespace DiamondLegends.Domain.Models
         public int MovementPotential { get; set; }
         public IEnumerable<Position> Positions { get; set; }
         public Team Team { get; set; } 
+
+        public int AverageDefenseSkill()
+        {
+            return (Running + Defense + Mental + Stamina + Control + Velocity) / 6;
+        }
+
+        public int AverageBattingSkill()
+        {
+            return (Contact + Power + Running + Mental + Stamina) / 5;
+        }
+
+        public int AverageFielderSkill()
+        {
+            return (Contact + Power + Running + Defense + Mental + Stamina + Control + Velocity) / 8;
+        }
+
+        public int AveragePitchingSkill()
+        {
+            return (Defense + Mental + Stamina + Control + Velocity + Movement) / 6;
+        }
     }
 }

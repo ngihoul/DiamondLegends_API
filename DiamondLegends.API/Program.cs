@@ -1,6 +1,5 @@
 using CheckMate.BLL.Services;
 using DiamondLegends.BLL.Generators;
-using DiamondLegends.BLL.Interfaces;
 using DiamondLegends.BLL.Services;
 using DiamondLegends.DAL.Factories.Interfaces;
 using DiamondLegends.DAL.Factories;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using DiamondLegends.BLL.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
