@@ -60,6 +60,7 @@ namespace DiamondLegends.BLL.Generators
 
             CurrentPitcher = HomeStartingPitcher;
             CurrentHitter = Offense[0];
+            CurrentHitter.PA++;
         }
 
         // TODO: Handling pitching changes
@@ -114,6 +115,8 @@ namespace DiamondLegends.BLL.Generators
                     CurrentHitter = Offense[positionCurrentHitter + 1];
                 }
             }
+
+            CurrentHitter.PA++;
         }
         private void Pitch()
         {
@@ -785,10 +788,10 @@ namespace DiamondLegends.BLL.Generators
 
                 CurrentHitter = Offense[positionNextHitter];
 
-                RunsHome = RunsHome + CurrentRuns;
+                RunsHome += CurrentRuns;
                 CurrentRuns = 0;
 
-                HitsHome = HitsHome + CurrentHits;
+                HitsHome += CurrentHits;
                 CurrentHits = 0;
             }
             else
@@ -806,10 +809,10 @@ namespace DiamondLegends.BLL.Generators
 
                 CurrentHitter = Offense[positionNextHitter];
 
-                RunsAway = RunsAway + CurrentRuns;
+                RunsAway += CurrentRuns;
                 CurrentRuns = 0;
 
-                HitsAway = HitsAway + CurrentHits;
+                HitsAway += CurrentHits;
                 CurrentHits = 0;
             }
 
