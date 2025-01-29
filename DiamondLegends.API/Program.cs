@@ -73,6 +73,10 @@ builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGameService, GameService>();
 
+builder.Services.AddScoped<IOffensiveStatsRepository, OffensiveStatsRepository>();
+
+builder.Services.AddScoped<IPitchingStatsRepository, PitchingStatsRepository>();
+
 builder.Services.AddScoped<LeagueNameGenerator>();
 builder.Services.AddScoped<TeamGenerator>();
 builder.Services.AddScoped<PlayerGenerator>();

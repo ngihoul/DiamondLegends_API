@@ -127,8 +127,8 @@ namespace DiamondLegends.BLL.Services
             GamePitchingStats opponentStartingPitcher = await _lineUpGenerator.GenerateStartingPitcher(opponent, game);
 
             // Simulate Game
-            GameSimulator simulation = new GameSimulator(game, offensiveLineUp, startingPitcher, opponentLineUp, opponentStartingPitcher);
-            game = simulation.Simulate();
+            GameSimulator simulation = new GameSimulator(game, offensiveLineUp, startingPitcher, opponentLineUp, opponentStartingPitcher, _gameRepository);
+            game = await simulation.Simulate();
 
             // return Game with stats
             return game;

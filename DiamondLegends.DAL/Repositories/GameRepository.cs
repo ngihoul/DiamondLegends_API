@@ -4,16 +4,21 @@ using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.DAL.Mappers;
 using DiamondLegends.Domain.Models;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace DiamondLegends.DAL.Repositories
 {
     public class GameRepository : IGameRepository
     {
         private readonly IDbConnectionFactory _connection;
+        private readonly IOffensiveStatsRepository _offensiveStatsRepository;
+        private readonly IPitchingStatsRepository _pitchingStatsRepository;
 
-        public GameRepository(IDbConnectionFactory connection)
+        public GameRepository(IDbConnectionFactory connection, IOffensiveStatsRepository offensiveStatsRepository, IPitchingStatsRepository pitchingStatsRepository)
         {
             _connection = connection;
+            _offensiveStatsRepository = offensiveStatsRepository;
+            _pitchingStatsRepository = pitchingStatsRepository;
         }
 
         public async Task<Game> Create(Game game)
@@ -35,7 +40,7 @@ namespace DiamondLegends.DAL.Repositories
 
         public async Task<Game?> GetById(int id)
         {
-            using(var connection = _connection.Create())
+            using (var connection = _connection.Create())
             {
                 SqlCommand command = connection.CreateCommand();
 
@@ -53,7 +58,7 @@ namespace DiamondLegends.DAL.Repositories
 
                 Game? game = null;
 
-                if(await reader.ReadAsync())
+                if (await reader.ReadAsync())
                 {
                     game = GameMappers.FullGame(reader);
                 }
@@ -87,25 +92,25 @@ namespace DiamondLegends.DAL.Repositories
                     command.Parameters.AddWithValue("@TeamId", query.TeamId);
                 }
 
-                if(query.Season is not null)
+                if (query.Season is not null)
                 {
                     where.Add("G.Season = @Season");
                     command.Parameters.AddWithValue("@Season", query.Season);
                 }
 
-                if(query.Month is not null)
+                if (query.Month is not null)
                 {
                     where.Add("MONTH(G.Date) = @Month");
                     command.Parameters.AddWithValue("@Month", query.Month);
                 }
 
-                if(query.Day is not null)
+                if (query.Day is not null)
                 {
                     where.Add("DAY(G.Date) = @Day");
                     command.Parameters.AddWithValue("@Day", query.Day);
                 }
 
-                if(where.Count > 0)
+                if (where.Count > 0)
                 {
                     command.CommandText += " WHERE " + string.Join(" AND ", where);
                 }
@@ -116,11 +121,67 @@ namespace DiamondLegends.DAL.Repositories
 
                 SqlDataReader reader = await command.ExecuteReaderAsync();
 
-                while (await reader.ReadAsync()) {
+                while (await reader.ReadAsync())
+                {
                     games.Add(GameMappers.FullGame(reader));
                 }
 
                 return games;
+            }
+        }
+
+        public async Task<Game> Update(Game game)
+        {
+            using (var connection = _connection.Create())
+            {
+                await connection.OpenAsync();
+                using (var transaction = await connection.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        using SqlCommand command = connection.CreateCommand();
+                        command.Transaction = (SqlTransaction)transaction;
+
+                        command.CommandText = "UPDATE [Games] SET Date = @Date, Season = @Season, Away = @Away, Home = @Home, Half_innings = @HalfInnings, Away_runs = @AwayRuns, Home_runs = @HomeRuns, Away_hits = @AwayHits, Home_hits = @HomeHits, Away_errors = @AwayErrors, Home_errors = @HomeErrors WHERE Id = @Id";
+
+                        command.Parameters.AddWithValue("@Date", game.Date);
+                        command.Parameters.AddWithValue("@Season", game.Season);
+                        command.Parameters.AddWithValue("@Away", game.Away.Id);
+                        command.Parameters.AddWithValue("@Home", game.Home.Id);
+                        command.Parameters.AddWithValue("@HalfInnings", game.HalfInnings);
+                        command.Parameters.AddWithValue("@AwayRuns", game.AwayRuns);
+                        command.Parameters.AddWithValue("@HomeRuns", game.HomeRuns);
+                        command.Parameters.AddWithValue("@AwayHits", game.AwayHits);
+                        command.Parameters.AddWithValue("@HomeHits", game.HomeHits);
+                        command.Parameters.AddWithValue("@AwayErrors", game.AwayErrors);
+                        command.Parameters.AddWithValue("@HomeErrors", game.HomeErrors);
+                        command.Parameters.AddWithValue("@Id", game.Id);
+
+                        int row = await command.ExecuteNonQueryAsync();
+                        if (row == 0)
+                        {
+                            throw new Exception("Erreur lors de la mise à jour du match.");
+                        }
+
+                        foreach (GameOffensiveStats stats in game.OffensiveStats)
+                        {
+                            await _offensiveStatsRepository.Create(stats, connection, (SqlTransaction)transaction);
+                        }
+
+                        foreach (GamePitchingStats stats in game.PitchingStats)
+                        {
+                            await _pitchingStatsRepository.Create(stats, connection, (SqlTransaction)transaction);
+                        }
+
+                        await transaction.CommitAsync();
+                        return game;
+                    }
+                    catch (Exception e)
+                    {
+                        await transaction.RollbackAsync();
+                        throw new Exception("Erreur lors de la mise à jour du match", e);
+                    }
+                }
             }
         }
     }

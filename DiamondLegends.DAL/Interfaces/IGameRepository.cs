@@ -12,5 +12,6 @@ namespace DiamondLegends.DAL.Interfaces
         public Task<Game> Create(Game game);
         public Task<Game?> GetById(int id);
         public Task<List<Game>> GetAll(GameQuery query);
+        public Task<Game> Update(Game game);
     }
 }

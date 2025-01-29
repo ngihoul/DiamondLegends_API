@@ -1,10 +1,11 @@
-﻿using DiamondLegends.BLL.Generators.Interfaces;
+﻿using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Models;
 
 namespace DiamondLegends.BLL.Generators
 {
     public class GameSimulator
     {
+        private readonly IGameRepository _gameRepository;
         public bool GameOver { get; set; } = false;
         public int HalfInnings { get; set; } = 0;
         public int Strikes { get; set; } = 0;
@@ -42,8 +43,12 @@ namespace DiamondLegends.BLL.Generators
         GamePitchingStats LastPitcherHome = new GamePitchingStats();
         GamePitchingStats LastPitcherAway = new GamePitchingStats();
 
-        public GameSimulator(Game game, List<GameOffensiveStats> offensiveLineUp, GamePitchingStats startingPitcher, List<GameOffensiveStats> opponentLineUp, GamePitchingStats opponentStartingPitcher)
+        public GameSimulator(Game game, List<GameOffensiveStats> offensiveLineUp, GamePitchingStats startingPitcher, List<GameOffensiveStats> opponentLineUp, GamePitchingStats opponentStartingPitcher, IGameRepository gameRepository)
         {
+            // Dependencies
+            _gameRepository = gameRepository;
+
+            // Game
             Game = game;
 
             AwayLineUp = offensiveLineUp.First().Player.Team.Id == Game.Away.Id ? offensiveLineUp : opponentLineUp;
@@ -76,7 +81,7 @@ namespace DiamondLegends.BLL.Generators
         // HBP to Hitters
         // 
 
-        public Game Simulate()
+        public async Task<Game> Simulate()
         {
             while (!GameOver)
             {
@@ -91,8 +96,6 @@ namespace DiamondLegends.BLL.Generators
             Game.OffensiveStats = [.. Offense, .. Defense];
             Game.PitchingStats = [HomeStartingPitcher, AwayStartingPitcher];
 
-            // Save Stats in DB
-
             Game.HalfInnings = HalfInnings;
 
             Game.AwayRuns = RunsAway;
@@ -102,6 +105,16 @@ namespace DiamondLegends.BLL.Generators
             Game.HomeHits = HitsHome;
 
             Game.Status = Game.PLAYED;
+
+            // Save Stats in DB
+            // TODO: Save Stats in GameRepo.Updsate with transaction
+            /* foreach(GameOffensiveStats stats in Game.OffensiveStats)
+            {
+                await _offensiveStatsRepository.Create(stats);
+            } */
+
+            // Update Game in DB
+            Game = await _gameRepository.Update(Game);
 
             return Game;
         }
