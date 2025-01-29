@@ -89,7 +89,7 @@ namespace DiamondLegends.BLL.Generators
             Game.AwayHits = HitsAway;
             Game.HomeHits = HitsHome;
 
-            // Game.Status = Game.PLAYED;
+            Game.Status = Game.PLAYED;
 
             return Game;
         }
@@ -152,30 +152,26 @@ namespace DiamondLegends.BLL.Generators
                 if (Bases[0] is not null && Bases[1] is not null && Bases[2] is not null)
                 {
                     // Run scores
-                    Score();
-                    Bases[2].R++;
-                    CurrentHitter.RBI++;
-                    CurrentPitcher.ER++;
+                    Score(Bases[2]);
 
                     // Runners move
                     Bases[2] = null;
                     Bases[2] = Bases[1];
                     Bases[1] = Bases[0];
-                    Bases[0] = CurrentHitter;
                 }
                 else if (Bases[0] is not null && Bases[1] is not null)
                 {
                     // Runners move
                     Bases[2] = Bases[1];
                     Bases[1] = Bases[0];
-                    Bases[0] = CurrentHitter;
                 }
                 else if (Bases[0] is not null)
                 {
                     // Runners move
                     Bases[1] = Bases[0];
-                    Bases[0] = CurrentHitter;
                 }
+
+                Bases[0] = CurrentHitter;
 
                 NextHitter();
             }
@@ -366,15 +362,9 @@ namespace DiamondLegends.BLL.Generators
 
             CurrentHits++;
 
-            Score();
-
             if (Bases[2] is not null)
             {
-                Bases[2].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[2]);
 
                 Bases[2] = null;
             }
@@ -402,22 +392,14 @@ namespace DiamondLegends.BLL.Generators
 
             if (Bases[2] is not null)
             {
-                Bases[2].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[2]);
 
                 Bases[2] = null;
             }
 
             if (Bases[1] is not null)
             {
-                Bases[1].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[1]);
 
                 Bases[1] = null;
             }
@@ -440,33 +422,21 @@ namespace DiamondLegends.BLL.Generators
 
             if (Bases[2] is not null)
             {
-                Bases[2].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[2]);
 
                 Bases[2] = null;
             }
 
             if (Bases[1] is not null)
             {
-                Bases[1].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[1]);
 
                 Bases[1] = null;
             }
 
             if (Bases[0] is not null)
             {
-                Bases[0].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[0]);
 
                 Bases[0] = null;
             }
@@ -482,11 +452,7 @@ namespace DiamondLegends.BLL.Generators
                 // Sac Fly
                 if (Bases[2] is not null)
                 {
-                    Bases[2].R++;
-                    Score();
-
-                    CurrentHitter.RBI++;
-                    CurrentPitcher.ER++;
+                    Score(Bases[2]);
                 }
             }
 
@@ -528,26 +494,16 @@ namespace DiamondLegends.BLL.Generators
 
             CurrentHits++;
 
-            CurrentHits++;
-
             if (Bases[2] is not null)
             {
-                Bases[2].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[2]);
 
                 Bases[2] = null;
             }
 
             if (Bases[1] is not null)
             {
-                Bases[1].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[1]);
 
                 Bases[1] = null;
             }
@@ -571,33 +527,21 @@ namespace DiamondLegends.BLL.Generators
 
             if (Bases[2] is not null)
             {
-                Bases[2].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[2]);
 
                 Bases[2] = null;
             }
 
             if (Bases[1] is not null)
             {
-                Bases[1].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[1]);
 
                 Bases[1] = null;
             }
 
             if (Bases[0] is not null)
             {
-                Bases[0].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[0]);
 
                 Bases[0] = null;
             }
@@ -615,33 +559,21 @@ namespace DiamondLegends.BLL.Generators
 
             if (Bases[2] is not null)
             {
-                Bases[2].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[2]);
 
                 Bases[2] = null;
             }
 
             if (Bases[1] is not null)
             {
-                Bases[1].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[1]);
 
                 Bases[1] = null;
             }
 
             if (Bases[0] is not null)
             {
-                Bases[0].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[0]);
 
                 Bases[0] = null;
             }
@@ -702,51 +634,38 @@ namespace DiamondLegends.BLL.Generators
 
             if (Bases[2] is not null)
             {
-                Bases[2].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[2]);
 
                 Bases[2] = null;
             }
 
             if (Bases[1] is not null)
             {
-                Bases[1].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[1]);
 
                 Bases[1] = null;
             }
 
             if (Bases[0] is not null)
             {
-                Bases[0].R++;
-                Score();
-
-                CurrentHitter.RBI++;
-                CurrentPitcher.ER++;
+                Score(Bases[0]);
 
                 Bases[0] = null;
             }
 
-            CurrentHitter.RBI++;
-
-            CurrentHitter.R++;
-            Score();
-
-            CurrentPitcher.R++;
+            Score(CurrentHitter);
 
             NextHitter();
         }
-        private void Score()
+        private void Score(GameOffensiveStats scorer)
         {
+            
             CurrentRuns++;
+            CurrentHitter.RBI++;
+            CurrentPitcher.R++;
+            scorer.R++;
 
-            if(isWalkOff()) {
+            if (isWalkOff()) {
                 GameOver = true;
             }
         }
