@@ -5,74 +5,79 @@ namespace DiamondLegends.BLL.Generators
 {
     public class GameSimulator
     {
+        #region Dependencies
         private readonly IGameRepository _gameRepository;
-        public bool GameOver { get; set; } = false;
-        public int HalfInnings { get; set; } = 0;
-        public int Strikes { get; set; } = 0;
-        public int Balls { get; set; } = 0;
-        public int NbOuts { get; set; } = 0;
+        #endregion
 
-        public int CurrentRuns { get; set; } = 0;
-        public int RunsAway { get; set; } = 0;
-        public int RunsHome { get; set; } = 0;
+        #region Properties
+        private bool _gameOver = false;
+        private int _halfInnings = 0;
+        private int _strikes = 0;
+        private int _balls = 0;
+        private int _nbOuts = 0;
 
-        public int CurrentHits { get; set; } = 0;
-        public int HitsAway { get; set; } = 0;
-        public int HitsHome { get; set; } = 0;
+        private int _currentRuns = 0;
+        private int _runsAway = 0;
+        private int _runsHome = 0;
 
+        private int _currentHits = 0;
+        private int _hitsAway = 0;
+        private int _hitsHome = 0;
 
-        Game Game = new Game();
+        private Game _game = new Game();
 
-        GameOffensiveStats[] Bases = new GameOffensiveStats[3] { null, null, null };
+        private GameOffensiveStats[] _bases = { null, null, null };
 
-        List<GameOffensiveStats> AwayLineUp = new List<GameOffensiveStats>();
-        List<GameOffensiveStats> HomeLineUp = new List<GameOffensiveStats>();
+        private readonly List<GameOffensiveStats> _awayLineUp = new List<GameOffensiveStats>();
+        private readonly List<GameOffensiveStats> _homeLineUp = new List<GameOffensiveStats>();
 
-        GamePitchingStats HomeStartingPitcher = new GamePitchingStats();
-        GamePitchingStats AwayStartingPitcher = new GamePitchingStats();
+        private readonly GamePitchingStats _homeStartingPitcher = new GamePitchingStats();
+        private readonly GamePitchingStats _awayStartingPitcher = new GamePitchingStats();
 
-        List<GameOffensiveStats> Defense = new List<GameOffensiveStats>();
-        List<GameOffensiveStats> Offense = new List<GameOffensiveStats>();
+        private List<GameOffensiveStats> _defense = new List<GameOffensiveStats>();
+        private List<GameOffensiveStats> _offense = new List<GameOffensiveStats>();
 
-        GamePitchingStats CurrentPitcher = new GamePitchingStats();
-        GameOffensiveStats CurrentHitter = null;
+        private GamePitchingStats _currentPitcher = new GamePitchingStats();
+        private GameOffensiveStats? _currentHitter = null;
 
-        GameOffensiveStats LastHitterHome = null;
-        GameOffensiveStats LastHitterAway = null;
+        private GameOffensiveStats? _lastHitterHome = null;
+        private GameOffensiveStats? _lastHitterAway = null;
 
-        GamePitchingStats LastPitcherHome = new GamePitchingStats();
-        GamePitchingStats LastPitcherAway = new GamePitchingStats();
+        private GamePitchingStats _lastPitcherHome = new GamePitchingStats();
+        private GamePitchingStats _lastPitcherAway = new GamePitchingStats();
+        #endregion
 
+        #region Constructor
         public GameSimulator(Game game, List<GameOffensiveStats> offensiveLineUp, GamePitchingStats startingPitcher, List<GameOffensiveStats> opponentLineUp, GamePitchingStats opponentStartingPitcher, IGameRepository gameRepository)
         {
             // Dependencies
             _gameRepository = gameRepository;
 
             // Game
-            Game = game;
+            _game = game;
 
-            AwayLineUp = offensiveLineUp.First().Player.Team.Id == Game.Away.Id ? offensiveLineUp : opponentLineUp;
-            HomeLineUp = offensiveLineUp.First().Player.Team.Id == Game.Home.Id ? offensiveLineUp : opponentLineUp;
+            _awayLineUp = offensiveLineUp.First().Player.Team.Id == _game.Away.Id ? offensiveLineUp : opponentLineUp;
+            _homeLineUp = offensiveLineUp.First().Player.Team.Id == _game.Home.Id ? offensiveLineUp : opponentLineUp;
 
-            HomeStartingPitcher = startingPitcher.Player.Team.Id == Game.Home.Id ? startingPitcher : opponentStartingPitcher;
-            AwayStartingPitcher = startingPitcher.Player.Team.Id == Game.Away.Id ? startingPitcher : opponentStartingPitcher;
+            _homeStartingPitcher = startingPitcher.Player.Team.Id == _game.Home.Id ? startingPitcher : opponentStartingPitcher;
+            _awayStartingPitcher = startingPitcher.Player.Team.Id == _game.Away.Id ? startingPitcher : opponentStartingPitcher;
 
-            LastPitcherAway = AwayStartingPitcher;
-            LastPitcherAway.G++;
-            LastPitcherAway.GS++;
+            _lastPitcherAway = _awayStartingPitcher;
+            _lastPitcherAway.G++;
+            _lastPitcherAway.GS++;
 
-            LastPitcherHome = HomeStartingPitcher;
-            LastPitcherHome.G++;
-            LastPitcherHome.GS++;
+            _lastPitcherHome = _homeStartingPitcher;
+            _lastPitcherHome.G++;
+            _lastPitcherHome.GS++;
 
-            Defense = HomeLineUp;
-            Offense = AwayLineUp;
+            _defense = _homeLineUp;
+            _offense = _awayLineUp;
 
-            CurrentPitcher = HomeStartingPitcher;
-            CurrentHitter = Offense[0];
-            CurrentHitter.PA++;
+            _currentPitcher = _homeStartingPitcher;
+            _currentHitter = _offense[0];
+            _currentHitter.PA++;
         }
-
+        #endregion
         // TODO: Handling pitchers' changes
         // TODO: Handling Stolen bases
         // TODO: Take in account Players' stats
@@ -81,11 +86,12 @@ namespace DiamondLegends.BLL.Generators
         // HBP to Hitters
         // 
 
+        #region Methods
         public async Task<Game> Simulate()
         {
-            while (!GameOver)
+            while (!_gameOver)
             {
-                while (NbOuts < 3 && !GameOver)
+                while (_nbOuts < 3 && !_gameOver)
                 {
                     Pitch();
                 }
@@ -93,61 +99,55 @@ namespace DiamondLegends.BLL.Generators
                 ChangeField();
             }
 
-            Game.OffensiveStats = [.. Offense, .. Defense];
-            Game.PitchingStats = [HomeStartingPitcher, AwayStartingPitcher];
+            _game.OffensiveStats = [.. _offense, .. _defense];
+            _game.PitchingStats = [_homeStartingPitcher, _awayStartingPitcher];
 
-            Game.HalfInnings = HalfInnings;
+            _game.HalfInnings = _halfInnings;
 
-            Game.AwayRuns = RunsAway;
-            Game.HomeRuns = RunsHome;
+            _game.AwayRuns = _runsAway;
+            _game.HomeRuns = _runsHome;
 
-            Game.AwayHits = HitsAway;
-            Game.HomeHits = HitsHome;
+            _game.AwayHits = _hitsAway;
+            _game.HomeHits = _hitsHome;
 
-            Game.Status = Game.PLAYED;
+            _game.Status = Game.PLAYED;
 
-            // Save Stats in DB
-            // TODO: Save Stats in GameRepo.Updsate with transaction
-            /* foreach(GameOffensiveStats stats in Game.OffensiveStats)
-            {
-                await _offensiveStatsRepository.Create(stats);
-            } */
+            // Update Game & Save Stats with transaction
+            _game = await _gameRepository.Update(_game);
 
-            // Update Game in DB
-            Game = await _gameRepository.Update(Game);
-
-            return Game;
+            return _game;
         }
 
         private void NextHitter()
         {
             ResetCount();
 
-            if (CurrentHitter is null)
+            if (_currentHitter is null)
             {
-                CurrentHitter = Offense[0];
+                _currentHitter = _offense[0];
             }
             else
             {
-                int positionCurrentHitter = Offense.FindIndex(p => p.Player.Id == CurrentHitter.Player.Id);
+                int positionCurrentHitter = _offense.FindIndex(p => p.Player.Id == _currentHitter.Player.Id);
 
                 if (positionCurrentHitter == 8)
                 {
-                    CurrentHitter = Offense[0];
+                    _currentHitter = _offense[0];
                 }
                 else
                 {
-                    CurrentHitter = Offense[positionCurrentHitter + 1];
+                    _currentHitter = _offense[positionCurrentHitter + 1];
                 }
             }
 
-            CurrentHitter.PA++;
+            _currentHitter.PA++;
         }
+
         private void Pitch()
         {
             int randomPitch = Random.Shared.Next(0, 101);
 
-            CurrentPitcher.NP++;
+            _currentPitcher.NP++;
 
             if (randomPitch < 43)
             {
@@ -170,95 +170,100 @@ namespace DiamondLegends.BLL.Generators
                 BallInPlay();
             }
         }
+
         private void Ball()
         {
             // Base on balls
-            if (Balls == 3)
+            if (_balls == 3)
             {
-                CurrentHitter.BB++;
-                CurrentPitcher.BB++;
+                _currentHitter.BB++;
+                _currentPitcher.BB++;
 
-                if (Bases[0] is not null && Bases[1] is not null && Bases[2] is not null)
+                if (_bases[0] is not null && _bases[1] is not null && _bases[2] is not null)
                 {
                     // Run scores
-                    Score(Bases[2]);
+                    Score(_bases[2]);
 
                     // Runners move
-                    Bases[2] = null;
-                    Bases[2] = Bases[1];
-                    Bases[1] = Bases[0];
+                    _bases[2] = null;
+                    _bases[2] = _bases[1];
+                    _bases[1] = _bases[0];
                 }
-                else if (Bases[0] is not null && Bases[1] is not null)
+                else if (_bases[0] is not null && _bases[1] is not null)
                 {
                     // Runners move
-                    Bases[2] = Bases[1];
-                    Bases[1] = Bases[0];
+                    _bases[2] = _bases[1];
+                    _bases[1] = _bases[0];
                 }
-                else if (Bases[0] is not null)
+                else if (_bases[0] is not null)
                 {
                     // Runners move
-                    Bases[1] = Bases[0];
+                    _bases[1] = _bases[0];
                 }
 
-                Bases[0] = CurrentHitter;
+                _bases[0] = _currentHitter;
 
                 NextHitter();
             }
             // Ball + 1
             else
             {
-                Balls++;
+                _balls++;
             }
         }
+
         private void Strike()
         {
-            if (Strikes == 2)
+            if (_strikes == 2)
             {
                 StrikeOut();
             }
             else
             {
-                Strikes++;
+                _strikes++;
             }
         }
+
         private void FoulBall()
         {
-            if (Strikes < 2)
+            if (_strikes < 2)
             {
-                Strikes++;
+                _strikes++;
             }
         }
+
         private void HitByPitch()
         {
-            CurrentPitcher.HB++;
+            _currentPitcher.HB++;
 
             // TODO : add HBP to hitter
-            if (Bases[0] is not null && Bases[1] is not null && Bases[2] is not null)
+            if (_bases[0] is not null && _bases[1] is not null && _bases[2] is not null)
             {
                 // Run scores
-                Score(Bases[2]);
+                Score(_bases[2]);
 
                 // Runners move
-                Bases[2] = null;
-                Bases[2] = Bases[1];
-                Bases[1] = Bases[0];
+                _bases[2] = null;
+                _bases[2] = _bases[1];
+                _bases[1] = _bases[0];
             }
-            else if (Bases[0] is not null && Bases[1] is not null)
+            else if (_bases[0] is not null && _bases[1] is not null)
             {
                 // Runners move
-                Bases[2] = Bases[1];
-                Bases[1] = Bases[0];
+                _bases[2] = _bases[1];
+                _bases[1] = _bases[0];
             }
-            else if (Bases[0] is not null)
+            else if (_bases[0] is not null)
             {
                 // Runners move
-                Bases[1] = Bases[0];
+                _bases[1] = _bases[0];
             }
 
-            Bases[0] = CurrentHitter;
+            _bases[0] = _currentHitter;
 
             NextHitter();
         }
+
         private void BallInPlay()
         {
             /*
@@ -283,6 +288,7 @@ namespace DiamondLegends.BLL.Generators
                 LineDrive();
             }
         }
+
         public void FlyBall()
         {
             //Fly Balls :
@@ -292,7 +298,7 @@ namespace DiamondLegends.BLL.Generators
             //    Triples : Environ 2 %
             //    Home Runs: Environ 15 %
 
-            CurrentHitter.AB++;
+            _currentHitter.AB++;
 
             int randomFly = Random.Shared.Next(0, 101);
 
@@ -317,6 +323,7 @@ namespace DiamondLegends.BLL.Generators
                 FlyOut();
             }
         }
+
         private void GroundBall()
         {
             //Ground Balls:
@@ -326,7 +333,7 @@ namespace DiamondLegends.BLL.Generators
             //    Triples : Moins de 1 %
             //    Home Runs: Pratiquement 0 %
 
-            CurrentHitter.AB++;
+            _currentHitter.AB++;
 
             int randomGround = Random.Shared.Next(0, 101);
 
@@ -347,6 +354,7 @@ namespace DiamondLegends.BLL.Generators
                 GroundOut();
             }
         }
+
         private void LineDrive()
         {
             //Line Drives:
@@ -356,7 +364,7 @@ namespace DiamondLegends.BLL.Generators
             //    Triples : Environ 2 %
             //    Home Runs: Environ 6 %
 
-            CurrentHitter.AB++;
+            _currentHitter.AB++;
 
             int randomLine = Random.Shared.Next(0, 101);
 
@@ -381,416 +389,433 @@ namespace DiamondLegends.BLL.Generators
                 LineOut();
             }
         }
+
         private void StrikeOut()
         {
-            CurrentHitter.SO++;
-            CurrentHitter.AB++;
+            _currentHitter.SO++;
+            _currentHitter.AB++;
 
-            CurrentPitcher.SO++;
+            _currentPitcher.SO++;
 
-            if (NbOuts < 2)
+            if (_nbOuts < 2)
             {
                 NextHitter();
             }
 
-            NbOuts++;
+            _nbOuts++;
         }
+
         private void SingleHit()
         {
-            CurrentHitter.H++;
-            CurrentPitcher.H++;
+            _currentHitter.H++;
+            _currentPitcher.H++;
 
-            CurrentHits++;
+            _currentHits++;
 
-            if (Bases[2] is not null)
+            if (_bases[2] is not null)
             {
-                Score(Bases[2]);
+                Score(_bases[2]);
 
-                Bases[2] = null;
+                _bases[2] = null;
             }
 
-            if (Bases[1] is not null)
+            if (_bases[1] is not null)
             {
-                Bases[2] = Bases[1];
+                _bases[2] = _bases[1];
             }
 
-            if (Bases[0] is not null)
+            if (_bases[0] is not null)
             {
-                Bases[1] = Bases[0];
+                _bases[1] = _bases[0];
             }
 
-            Bases[0] = CurrentHitter;
+            _bases[0] = _currentHitter;
 
             NextHitter();
         }
+
         private void DoubleHit()
         {
-            CurrentHitter.Double++;
-            CurrentPitcher.H++;
+            _currentHitter.Double++;
+            _currentPitcher.H++;
 
-            CurrentHits++;
+            _currentHits++;
 
-            if (Bases[2] is not null)
+            if (_bases[2] is not null)
             {
-                Score(Bases[2]);
+                Score(_bases[2]);
 
-                Bases[2] = null;
+                _bases[2] = null;
             }
 
-            if (Bases[1] is not null)
+            if (_bases[1] is not null)
             {
-                Score(Bases[1]);
+                Score(_bases[1]);
 
-                Bases[1] = null;
+                _bases[1] = null;
             }
 
-            if (Bases[0] is not null)
+            if (_bases[0] is not null)
             {
-                Bases[2] = Bases[0];
+                _bases[2] = _bases[0];
             }
 
-            Bases[1] = CurrentHitter;
+            _bases[1] = _currentHitter;
 
             NextHitter();
         }
+
         private void TripleHit()
         {
-            CurrentHitter.Triple++;
-            CurrentPitcher.H++;
+            _currentHitter.Triple++;
+            _currentPitcher.H++;
 
-            CurrentHits++;
+            _currentHits++;
 
-            if (Bases[2] is not null)
+            if (_bases[2] is not null)
             {
-                Score(Bases[2]);
+                Score(_bases[2]);
 
-                Bases[2] = null;
+                _bases[2] = null;
             }
 
-            if (Bases[1] is not null)
+            if (_bases[1] is not null)
             {
-                Score(Bases[1]);
+                Score(_bases[1]);
 
-                Bases[1] = null;
+                _bases[1] = null;
             }
 
-            if (Bases[0] is not null)
+            if (_bases[0] is not null)
             {
-                Score(Bases[0]);
+                Score(_bases[0]);
 
-                Bases[0] = null;
+                _bases[0] = null;
             }
 
-            Bases[2] = CurrentHitter;
+            _bases[2] = _currentHitter;
 
             NextHitter();
         }
+
         private void FlyOut()
         {
-            if (NbOuts < 2)
+            if (_nbOuts < 2)
             {
                 // Sac Fly
-                if (Bases[2] is not null)
+                if (_bases[2] is not null)
                 {
-                    Score(Bases[2]);
+                    Score(_bases[2]);
                 }
             }
 
-            NbOuts++;
+            _nbOuts++;
 
-            if (NbOuts < 3)
+            if (_nbOuts < 3)
             {
                 NextHitter();
             }
         }
+
         private void GroundOut()
         {
-            if (NbOuts < 2)
+            if (_nbOuts < 2)
             {
                 // Double play : 10 à 15%
-                if (Bases[0] is not null)
+                if (_bases[0] is not null)
                 {
                     int randomDP = Random.Shared.Next(0, 101);
 
                     if (randomDP <= 15)
                     {
-                        Bases[0] = null;
-                        NbOuts++;
+                        _bases[0] = null;
+                        _nbOuts++;
                     }
                 }
             }
 
-            NbOuts++;
+            _nbOuts++;
 
-            if (NbOuts < 3)
+            if (_nbOuts < 3)
             {
                 NextHitter();
             }
         }
+
         private void SingleLine()
         {
-            CurrentHitter.H++;
-            CurrentPitcher.H++;
+            _currentHitter.H++;
+            _currentPitcher.H++;
 
-            CurrentHits++;
+            _currentHits++;
 
-            if (Bases[2] is not null)
+            if (_bases[2] is not null)
             {
-                Score(Bases[2]);
+                Score(_bases[2]);
 
-                Bases[2] = null;
+                _bases[2] = null;
             }
 
-            if (Bases[1] is not null)
+            if (_bases[1] is not null)
             {
-                Score(Bases[1]);
+                Score(_bases[1]);
 
-                Bases[1] = null;
+                _bases[1] = null;
             }
 
-            if (Bases[0] is not null)
+            if (_bases[0] is not null)
             {
-                Bases[2] = Bases[0];
+                _bases[2] = _bases[0];
             }
 
-            Bases[0] = CurrentHitter;
+            _bases[0] = _currentHitter;
 
             NextHitter();
 
         }
+
         private void DoubleLine()
         {
-            CurrentHitter.Double++;
-            CurrentPitcher.H++;
+            _currentHitter.Double++;
+            _currentPitcher.H++;
 
-            CurrentHits++;
+            _currentHits++;
 
-            if (Bases[2] is not null)
+            if (_bases[2] is not null)
             {
-                Score(Bases[2]);
+                Score(_bases[2]);
 
-                Bases[2] = null;
+                _bases[2] = null;
             }
 
-            if (Bases[1] is not null)
+            if (_bases[1] is not null)
             {
-                Score(Bases[1]);
+                Score(_bases[1]);
 
-                Bases[1] = null;
+                _bases[1] = null;
             }
 
-            if (Bases[0] is not null)
+            if (_bases[0] is not null)
             {
-                Score(Bases[0]);
+                Score(_bases[0]);
 
-                Bases[0] = null;
+                _bases[0] = null;
             }
 
-            Bases[1] = CurrentHitter;
+            _bases[1] = _currentHitter;
 
             NextHitter();
         }
+
         private void TripleLine()
         {
-            CurrentHitter.Triple++;
-            CurrentPitcher.H++;
+            _currentHitter.Triple++;
+            _currentPitcher.H++;
 
-            CurrentHits++;
+            _currentHits++;
 
-            if (Bases[2] is not null)
+            if (_bases[2] is not null)
             {
-                Score(Bases[2]);
+                Score(_bases[2]);
 
-                Bases[2] = null;
+                _bases[2] = null;
             }
 
-            if (Bases[1] is not null)
+            if (_bases[1] is not null)
             {
-                Score(Bases[1]);
+                Score(_bases[1]);
 
-                Bases[1] = null;
+                _bases[1] = null;
             }
 
-            if (Bases[0] is not null)
+            if (_bases[0] is not null)
             {
-                Score(Bases[0]);
+                Score(_bases[0]);
 
-                Bases[0] = null;
+                _bases[0] = null;
             }
 
-            Bases[2] = CurrentHitter;
+            _bases[2] = _currentHitter;
 
             NextHitter();
         }
+
         private void LineOut()
         {
-            if (NbOuts < 2)
+            if (_nbOuts < 2)
             {
                 // Double play : 5 a 10%
-                if (Bases[0] is not null || Bases[1] is not null || Bases[2] is not null)
+                if (_bases[0] is not null || _bases[1] is not null || _bases[2] is not null)
                 {
                     int randomDP = Random.Shared.Next(0, 101);
 
-                    if (Bases[0] is not null)
+                    if (_bases[0] is not null)
                     {
                         if (randomDP <= 8)
                         {
-                            Bases[0] = null;
-                            NbOuts++;
+                            _bases[0] = null;
+                            _nbOuts++;
                         }
                     }
-                    else if (Bases[1] is not null)
+                    else if (_bases[1] is not null)
                     {
                         if (randomDP <= 8)
                         {
-                            Bases[1] = null;
-                            NbOuts++;
+                            _bases[1] = null;
+                            _nbOuts++;
                         }
                     }
-                    else if (Bases[2] is not null)
+                    else if (_bases[2] is not null)
                     {
                         if (randomDP <= 8)
                         {
-                            Bases[2] = null;
-                            NbOuts++;
+                            _bases[2] = null;
+                            _nbOuts++;
                         }
                     }
                 }
             }
 
-            NbOuts++;
+            _nbOuts++;
 
-            if (NbOuts < 3)
+            if (_nbOuts < 3)
             {
                 NextHitter();
             }
         }
+
         private void Homerun()
         {
-            CurrentHitter.HR++;
-            CurrentHitter.H++;
+            _currentHitter.HR++;
+            _currentHitter.H++;
 
-            CurrentPitcher.HR++;
+            _currentPitcher.HR++;
 
-            CurrentHits++;
+            _currentHits++;
 
-            if (Bases[2] is not null)
+            if (_bases[2] is not null)
             {
-                Score(Bases[2]);
+                Score(_bases[2]);
 
-                Bases[2] = null;
+                _bases[2] = null;
             }
 
-            if (Bases[1] is not null)
+            if (_bases[1] is not null)
             {
-                Score(Bases[1]);
+                Score(_bases[1]);
 
-                Bases[1] = null;
+                _bases[1] = null;
             }
 
-            if (Bases[0] is not null)
+            if (_bases[0] is not null)
             {
-                Score(Bases[0]);
+                Score(_bases[0]);
 
-                Bases[0] = null;
+                _bases[0] = null;
             }
 
-            Score(CurrentHitter);
+            Score(_currentHitter);
 
             NextHitter();
         }
+
         private void Score(GameOffensiveStats scorer)
         {
 
-            CurrentRuns++;
-            CurrentHitter.RBI++;
-            CurrentPitcher.R++;
+            _currentRuns++;
+            _currentHitter.RBI++;
+            _currentPitcher.R++;
             scorer.R++;
 
             if (isWalkOff())
             {
-                GameOver = true;
+                _gameOver = true;
             }
         }
+
         private void ResetCount()
         {
-            Balls = 0;
-            Strikes = 0;
+            _balls = 0;
+            _strikes = 0;
         }
+
         private bool isWalkOff()
+
         {
-            if (Offense == HomeLineUp && HalfInnings > 16 && RunsHome > RunsAway)
+            if (_offense == _homeLineUp && _halfInnings > 16 && _runsHome > _runsAway)
             {
                 return true;
             }
 
             return false;
         }
+
         private void ChangeField()
         {
             ResetCount();
-            NbOuts = 0;
-            Bases = [null, null, null];
+            _nbOuts = 0;
+            _bases = [null, null, null];
 
-            HalfInnings++;
+            _halfInnings++;
 
-            CurrentPitcher.IP++;
+            _currentPitcher.IP++;
 
             UpdatingPlayersStats();
 
             // Rotate teams
-            if (Offense == HomeLineUp)
+            if (_offense == _homeLineUp)
             {
-                LastHitterHome = CurrentHitter;
-                LastPitcherAway = CurrentPitcher;
+                _lastHitterHome = _currentHitter;
+                _lastPitcherAway = _currentPitcher;
 
-                CurrentPitcher = LastPitcherHome;
+                _currentPitcher = _lastPitcherHome;
 
-                int positionNextHitter = LastHitterHome is not null && AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) > -1 ? AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) + 1 : 0;
+                int positionNextHitter = _lastHitterHome is not null && _awayLineUp.FindIndex(p => p.Player.Id == _lastHitterAway.Player.Id) > -1 ? _awayLineUp.FindIndex(p => p.Player.Id == _lastHitterAway.Player.Id) + 1 : 0;
 
                 positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
 
-                CurrentHitter = AwayLineUp[positionNextHitter];
-                CurrentHitter.PA++;
+                _currentHitter = _awayLineUp[positionNextHitter];
+                _currentHitter.PA++;
 
-                RunsHome += CurrentRuns;
-                CurrentRuns = 0;
+                _runsHome += _currentRuns;
+                _currentRuns = 0;
 
-                HitsHome += CurrentHits;
-                CurrentHits = 0;
+                _hitsHome += _currentHits;
+                _currentHits = 0;
             }
             else
             {
-                LastHitterAway = CurrentHitter;
-                LastPitcherHome = CurrentPitcher;
+                _lastHitterAway = _currentHitter;
+                _lastPitcherHome = _currentPitcher;
 
-                CurrentPitcher = LastPitcherAway;
+                _currentPitcher = _lastPitcherAway;
 
-                int positionNextHitter = LastHitterHome is not null && HomeLineUp.FindIndex(p => p.Player.Id == LastHitterHome.Player.Id) > -1 ? HomeLineUp.FindIndex(p => p.Player.Id == LastHitterHome.Player.Id) + 1 : 0;
+                int positionNextHitter = _lastHitterHome is not null && _homeLineUp.FindIndex(p => p.Player.Id == _lastHitterHome.Player.Id) > -1 ? _homeLineUp.FindIndex(p => p.Player.Id == _lastHitterHome.Player.Id) + 1 : 0;
 
                 positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
 
-                CurrentHitter = HomeLineUp[positionNextHitter];
-                CurrentHitter.PA++;
+                _currentHitter = _homeLineUp[positionNextHitter];
+                _currentHitter.PA++;
 
-                RunsAway += CurrentRuns;
-                CurrentRuns = 0;
+                _runsAway += _currentRuns;
+                _currentRuns = 0;
 
-                HitsAway += CurrentHits;
-                CurrentHits = 0;
+                _hitsAway += _currentHits;
+                _currentHits = 0;
             }
 
-            (Offense, Defense) = (Defense, Offense);
+            (_offense, _defense) = (_defense, _offense);
 
             // Check if game is over
-            if ((HalfInnings > 17 && RunsHome != RunsAway) || isWalkOff())
+            if ((_halfInnings > 17 && _runsHome != _runsAway) || isWalkOff())
             {
-                GameOver = true;
+                _gameOver = true;
             }
         }
+
         private void UpdatingPlayersStats()
         {
-            foreach(GameOffensiveStats player in Offense)
+            foreach(GameOffensiveStats player in _offense)
             {
                 player.AVG = (decimal)player.AB > 0 ? Math.Round(((decimal)player.H + (decimal)player.Double + (decimal)player.Triple + (decimal)player.HR) / (decimal)player.AB, 3) : 0;
 
@@ -804,6 +829,7 @@ namespace DiamondLegends.BLL.Generators
                 player.OPS = Math.Round((decimal)player.SLG + (decimal)player.OBP, 3);
             }
         }
+        #endregion
     }
 }
 
