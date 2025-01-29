@@ -122,6 +122,7 @@ namespace DiamondLegends.BLL.Services
             }
 
             // TODO: Check if game is not already played
+            // TODO: Add halfInnings in Game Recapto know when the game finished
 
             List<GameOffensiveStats> opponentLineUp = await _lineUpGenerator.GenerateLineUp(opponent, game);
             GamePitchingStats opponentStartingPitcher = await _lineUpGenerator.GenerateStartingPitcher(opponent, game);
