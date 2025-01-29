@@ -1,4 +1,5 @@
-﻿using DiamondLegends.BLL.Generators.Interfaces;
+﻿using DiamondLegends.BLL.Generators;
+using DiamondLegends.BLL.Generators.Interfaces;
 using DiamondLegends.BLL.Services.Interfaces;
 using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.Domain.Models;
@@ -8,12 +9,16 @@ namespace DiamondLegends.BLL.Services
     public class GameService : IGameService
     {
         private readonly IGameRepository _gameRepository;
-        private readonly IGameGenerator _gameGenerator;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly ITeamRepository _teamRepository;
+        private readonly ILineUpGenerator _lineUpGenerator;
 
-        public GameService(IGameRepository gameRepository, IGameGenerator gameGenerator)
+        public GameService(IGameRepository gameRepository, IPlayerRepository playerRepository, ITeamRepository teamRepository, ILineUpGenerator lineUpGenerator)
         {
             _gameRepository = gameRepository;
-            _gameGenerator = gameGenerator;
+            _playerRepository = playerRepository;
+            _teamRepository = teamRepository;
+            _lineUpGenerator = lineUpGenerator;
         }
 
         public async Task<Game> GetById(int id)
@@ -64,7 +69,7 @@ namespace DiamondLegends.BLL.Services
             return games;
         }
 
-        public async Task<Game> Play(int id, List<GameOffensiveStats> offensiveLineUp, GamePitchingStats startingPitcher)
+        public async Task<Game> Play(int id, GameLineUp lineUp)
         {
             Game? game = await _gameRepository.GetById(id);
 
@@ -73,13 +78,57 @@ namespace DiamondLegends.BLL.Services
                 throw new ArgumentNullException("Le match n'existe pas.");
             }
 
+            // Generate lineUp
+            // Starting Pitcher
+            int startingPitcherId = lineUp.LineUpDetails.Where(d => d.Position == Domain.Enums.Position.StartingPitcher).First().PlayerId;
+
+            Player? pitcher = await _playerRepository.GetById(startingPitcherId);
+
+            if (pitcher is null)
+            {
+                throw new ArgumentNullException("Le lanceur partant n'existe pas");
+            }
+
+            GamePitchingStats startingPitcher = new GamePitchingStats()
+            {
+                Game = game,
+                Player = pitcher
+            };
+
+            // Offensive lineup
+            List<GameOffensiveStats> offensiveLineUp = new List<GameOffensiveStats>();
+
+            foreach (GameLineUpDetails details in lineUp.LineUpDetails) { 
+                if(details.Order < 10)
+                {
+                    offensiveLineUp.Add(new GameOffensiveStats()
+                    {
+                        Game = game,
+                        Player = await _playerRepository.GetById(details.PlayerId),
+                        Position = details.Position,
+                        Order = details.Order,
+                    });
+                }
+                
+            }
+
             // Generate lineUp for opponent
-            Team opponent = startingPitcher.Player.Team == game.Home ? game.Home : game.Away;
-            List<GameOffensiveStats> opponentLineUp = _gameGenerator.GenerateLineUp(opponent, game);
-            GamePitchingStats opponentStartingPitcher = _gameGenerator.GenerateStartingPitcher(opponent);
+            int opponentId = pitcher.Team == game.Home ? game.Home.Id : game.Away.Id;
+            Team? opponent = await _teamRepository.GetById(opponentId);
+
+            if(opponent is null)
+            {
+                throw new ArgumentNullException("L'equipe adverse n'existe pas.");
+            }
+
+            // TODO: Check if game is not already played
+
+            List<GameOffensiveStats> opponentLineUp = await _lineUpGenerator.GenerateLineUp(opponent, game);
+            GamePitchingStats opponentStartingPitcher = await _lineUpGenerator.GenerateStartingPitcher(opponent, game);
 
             // Simulate Game
-            game = await _gameGenerator.SimulateGame(game, offensiveLineUp, startingPitcher, opponentLineUp, opponentStartingPitcher);
+            GameSimulator simulation = new GameSimulator(game, offensiveLineUp, startingPitcher, opponentLineUp, opponentStartingPitcher);
+            game = simulation.Simulate();
 
             // return Game with stats
             return game;

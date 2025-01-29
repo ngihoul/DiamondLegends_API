@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using DiamondLegends.BLL.Services.Interfaces;
+using DiamondLegends.BLL.Generators.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +78,8 @@ builder.Services.AddScoped<TeamGenerator>();
 builder.Services.AddScoped<PlayerGenerator>();
 builder.Services.AddScoped<SeasonGenerator>();
 
+builder.Services.AddScoped<ILineUpGenerator, LineUpGenerator>();
+
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddAuthentication(option =>
@@ -127,34 +130,34 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // TODO : Outsource in separate file
-app.Use(async (context, next) =>
-{
-    try
-    {
-        await next.Invoke();
-    }
-    catch (ArgumentNullException e)
-    {
-        context.Response.StatusCode = 400;
-        await context.Response.WriteAsJsonAsync(e.Message);
-    }
-    catch (UnauthorizedAccessException e)
-    {
-        context.Response.StatusCode = 401;
-        await context.Response.WriteAsJsonAsync(e.Message);
-    }
-    // TODO : Catch error 403
-    catch (ArgumentException e)
-    {
-        context.Response.StatusCode = 404;
-        await context.Response.WriteAsJsonAsync(e.Message);
-    }
-    catch (Exception e)
-    {
-        context.Response.StatusCode = 500;
-        await context.Response.WriteAsJsonAsync(e.Message);
-    }
-});
+//app.Use(async (context, next) =>
+//{
+//    try
+//    {
+//        await next.Invoke();
+//    }
+//    catch (ArgumentNullException e)
+//    {
+//        context.Response.StatusCode = 400;
+//        await context.Response.WriteAsJsonAsync(e.Message);
+//    }
+//    catch (UnauthorizedAccessException e)
+//    {
+//        context.Response.StatusCode = 401;
+//        await context.Response.WriteAsJsonAsync(e.Message);
+//    }
+//    // TODO : Catch error 403
+//    catch (ArgumentException e)
+//    {
+//        context.Response.StatusCode = 404;
+//        await context.Response.WriteAsJsonAsync(e.Message);
+//    }
+//    catch (Exception e)
+//    {
+//        context.Response.StatusCode = 500;
+//        await context.Response.WriteAsJsonAsync(e.Message);
+//    }
+//});
 
 app.MapControllers();
 

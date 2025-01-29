@@ -1,5 +1,7 @@
 ﻿using DiamondLegends.API.DTO;
 using DiamondLegends.Domain.Models;
+using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 
 namespace DiamondLegends.API.Mappers
 {
@@ -42,6 +44,16 @@ namespace DiamondLegends.API.Mappers
                 Bat = player.Bat,
                 Energy = player.Energy,
                 Positions = player.Positions
+            };
+        }
+
+        public static PlayerViewGameRecap ToViewGameRecap(this Player player)
+        {
+            return new PlayerViewGameRecap()
+            {
+                Id = player.Id,
+                Firstname = player.Firstname,
+                Lastname = player.Lastname
             };
         }
     }

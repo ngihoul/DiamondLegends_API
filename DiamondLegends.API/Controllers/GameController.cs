@@ -44,7 +44,6 @@ namespace DiamondLegends.API.Controllers
         }
 
         [HttpPost("play/{id:int}")]
-        [Authorize]
         public async Task<ActionResult<GameView>> Play([FromRoute] int id, [FromBody] GameLineUp lineUp)
         {
             if(lineUp is null || !ModelState.IsValid)
@@ -52,10 +51,7 @@ namespace DiamondLegends.API.Controllers
                 throw new ArgumentNullException("Données invalides.");
             }
 
-            List<GameOffensiveStats> offensiveLineUp = lineUp.ToOffensiveStatList();
-            GamePitchingStats startingPitcher = lineUp.ToPitchingStat();
-
-            Game game = await _gameService.Play(id, offensiveLineUp, startingPitcher);
+            Game game = await _gameService.Play(id, lineUp);
 
             return Ok(game.ToView());
         }

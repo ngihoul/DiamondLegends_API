@@ -38,4 +38,11 @@ namespace DiamondLegends.API.DTO
         public int Energy { get; set; } = 100;
         public IEnumerable<Position> Positions { get; set; }
     }
+
+    public class PlayerViewGameRecap
+    {
+        public int Id { get; set; }
+        public string Firstname { get; set; }
+        public string Lastname { get; set; }
+    }
 }

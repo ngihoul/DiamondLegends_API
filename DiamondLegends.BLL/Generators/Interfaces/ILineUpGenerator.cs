@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace DiamondLegends.BLL.Generators.Interfaces
 {
-    public interface IGameGenerator
+    public interface ILineUpGenerator
     {
-        public Task<Game> Simulate(Game game);
+        public Task<List<GameOffensiveStats>> GenerateLineUp(Team team, Game game);
+        public Task<GamePitchingStats> GenerateStartingPitcher(Team team, Game game);
     }
 }

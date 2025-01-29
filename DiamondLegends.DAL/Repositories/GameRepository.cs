@@ -37,11 +37,28 @@ namespace DiamondLegends.DAL.Repositories
         {
             using(var connection = _connection.Create())
             {
+                SqlCommand command = connection.CreateCommand();
+
+                command.CommandText = "SELECT G.Id, G.Date, G.Season, T.Id AS AwayId, T.Name AS AwayName, T.Abbreviation AS AwayAbbreviation, T2.Id AS HomeId, T2.Name AS HomeName, T2.Abbreviation AS HomeAbbreviation, G.Away_runs, G.Home_runs, G.Away_hits, G.Home_hits, G.Away_errors, G.Home_errors " +
+                    "FROM Games AS G " +
+                    "JOIN Teams AS T ON G.Away = T.Id " +
+                    "JOIN Teams AS T2 ON G.Home = T2.Id " +
+                    "WHERE G.Id = @Id";
+
+                command.Parameters.AddWithValue("@Id", id);
+
                 await connection.OpenAsync();
-                return await connection.QuerySingleAsync<Game>(
-                    "SELECT * FROM Games WHERE Id = @Id",
-                    new { Id = id }
-                );
+
+                SqlDataReader reader = await command.ExecuteReaderAsync();
+
+                Game? game = null;
+
+                if(await reader.ReadAsync())
+                {
+                    game = GameMappers.FullGame(reader);
+                }
+
+                return game;
             }
         }
 

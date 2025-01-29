@@ -17,8 +17,8 @@ namespace DiamondLegends.API.DTO
         public int HomeHits { get; set; } = 0;
         public int AwayErrors { get; set; } = 0;
         public int HomeErrors { get; set; } = 0;
-        public List<GameOffensiveStats>? OffensiveStats { get; set; }
-        public List<GamePitchingStats>? PitchingStats { get; set; }
+        public List<OffensiveStatsView>? OffensiveStats { get; set; }
+        public List<PitchingStatsView>? PitchingStats { get; set; }
     }
 
     public class GameViewList
@@ -36,26 +36,55 @@ namespace DiamondLegends.API.DTO
         public int HomeErrors { get; set; } = 0;
     }
 
-    public class GameLineUp
+    public class OffensiveStatsView
     {
-        [Required]
-        public Game Game { get; set; }
-
-        [Required]
-        public List<GameLineUpDetails> LineUpDetails { get; set; }
+        public int Id { get; set; }
+        public PlayerViewGameRecap Player { get; set; }
+        public int Order { get; set; }
+        public Position Position { get; set; }
+        public double? AVG { get; set; }
+        public double? OBP { get; set; }
+        public double? SLG { get; set; }
+        public double? OPS { get; set; }
+        public int AB { get; set; }
+        public int R { get; set; }
+        public int H { get; set; }
+        public int Double { get; set; }
+        public int Triple { get; set; }
+        public int HR { get; set; }
+        public int RBI { get; set; }
+        public int BB { get; set; }
+        public int IBB { get; set; }
+        public int SO { get; set; }
+        public int SB { get; set; }
+        public int CS { get; set; }
     }
 
-    public class GameLineUpDetails
+    public class PitchingStatsView
     {
-        [Required]
-        public Player Player { get; set; }
-        [Required]
-        [Range(1, 9)]
-        public int Order { get; set; }
-
-
-        [Required]
-        [Range(1, 9)]
-        public Position Position { get; set; }
+        public int Id { get; set; }
+        public PlayerViewGameRecap Player { get; set; }
+        public double? ERA { get; set; }
+        public double? WHIP { get; set; }
+        public double? AVG { get; set; }
+        public int W { get; set; }
+        public int L { get; set; }
+        public int G { get; set; }
+        public int GS { get; set; }
+        public int CG { get; set; }
+        public int SHO { get; set; }
+        public int HLD { get; set; }
+        public int SV { get; set; }
+        public int SVO { get; set; }
+        public double IP { get; set; }
+        public int H { get; set; }
+        public int R { get; set; }
+        public int ER { get; set; }
+        public int HR { get; set; }
+        public int NP { get; set; }
+        public int HB { get; set; }
+        public int BB { get; set; }
+        public int IBB { get; set; }
+        public int SO { get; set; }
     }
 }

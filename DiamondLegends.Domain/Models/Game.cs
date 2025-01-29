@@ -1,4 +1,7 @@
-﻿namespace DiamondLegends.Domain.Models
+﻿using DiamondLegends.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
+
+namespace DiamondLegends.Domain.Models
 {
     public class Game
     {
@@ -28,5 +31,17 @@
         public int? TeamId { get; set; } = null;
         public int? Month { get; set; } = null;
         public int? Day { get; set; } = null;
+    }
+
+    public class GameLineUp
+    {
+        public List<GameLineUpDetails> LineUpDetails { get; set; }
+    }
+
+    public class GameLineUpDetails
+    {
+        public int PlayerId { get; set; }
+        public int Order { get; set; }
+        public Position Position { get; set; }
     }
 }
