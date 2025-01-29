@@ -55,7 +55,7 @@ namespace DiamondLegends.BLL.Generators
                         Game = game,
                         Player = bestFielders[i].Player,
                         Position = bestFielders[i].Position,
-                        Order = i
+                        Order = i + 1
                     }
                 );
             }
