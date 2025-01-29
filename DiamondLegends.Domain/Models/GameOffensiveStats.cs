@@ -9,10 +9,10 @@ namespace DiamondLegends.Domain.Models
         public Player Player { get; set; }
         public int Order { get; set; }
         public Position Position { get; set; }
-        public double? AVG { get; set; } = 0.000;
-        public double? OBP { get; set; } = 0.000;
-        public double? SLG { get; set; } = 0.000;
-        public double? OPS { get; set; } = 0.000;
+        public decimal? AVG { get; set; } = (decimal?)0.000;
+        public decimal? OBP { get; set; } = (decimal?)0.000;
+        public decimal? SLG { get; set; } = (decimal?)0.000;
+        public decimal? OPS { get; set; } = (decimal?)0.000;
         public int PA { get; set; } = 0;
         public int AB { get; set; } = 0;
         public int R { get; set; } = 0;

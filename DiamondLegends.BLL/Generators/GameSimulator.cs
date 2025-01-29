@@ -36,8 +36,8 @@ namespace DiamondLegends.BLL.Generators
         GamePitchingStats CurrentPitcher = new GamePitchingStats();
         GameOffensiveStats CurrentHitter = null;
 
-        GameOffensiveStats LastHitterHome = new GameOffensiveStats();
-        GameOffensiveStats LastHitterAway = new GameOffensiveStats();
+        GameOffensiveStats LastHitterHome = null;
+        GameOffensiveStats LastHitterAway = null;
 
         GamePitchingStats LastPitcherHome = new GamePitchingStats();
         GamePitchingStats LastPitcherAway = new GamePitchingStats();
@@ -53,7 +53,12 @@ namespace DiamondLegends.BLL.Generators
             AwayStartingPitcher = startingPitcher.Player.Team.Id == Game.Away.Id ? startingPitcher : opponentStartingPitcher;
 
             LastPitcherAway = AwayStartingPitcher;
+            LastPitcherAway.G++;
+            LastPitcherAway.GS++;
+
             LastPitcherHome = HomeStartingPitcher;
+            LastPitcherHome.G++;
+            LastPitcherHome.GS++;
 
             Defense = HomeLineUp;
             Offense = AwayLineUp;
@@ -66,7 +71,10 @@ namespace DiamondLegends.BLL.Generators
         // TODO: Handling pitchers' changes
         // TODO: Handling Stolen bases
         // TODO: Take in account Players' stats
-        // TODO: AB, IP, E (instead of ER for pitchers)
+        // TODO: Defensive Errors
+        // TODO:
+        // HBP to Hitters
+        // 
 
         public Game Simulate()
         {
@@ -82,6 +90,10 @@ namespace DiamondLegends.BLL.Generators
 
             Game.OffensiveStats = [.. Offense, .. Defense];
             Game.PitchingStats = [HomeStartingPitcher, AwayStartingPitcher];
+
+            // Save Stats in DB
+
+            Game.HalfInnings = HalfInnings;
 
             Game.AwayRuns = RunsAway;
             Game.HomeRuns = RunsHome;
@@ -135,6 +147,10 @@ namespace DiamondLegends.BLL.Generators
             else if (randomPitch >= 78 && randomPitch <= 87)
             {
                 FoulBall();
+            }
+            else if (randomPitch >= 88 && randomPitch <= 89)
+            {
+                HitByPitch();
             }
             else
             {
@@ -199,38 +215,39 @@ namespace DiamondLegends.BLL.Generators
                 Strikes++;
             }
         }
+        private void HitByPitch()
+        {
+            CurrentPitcher.HB++;
+
+            // TODO : add HBP to hitter
+            if (Bases[0] is not null && Bases[1] is not null && Bases[2] is not null)
+            {
+                // Run scores
+                Score(Bases[2]);
+
+                // Runners move
+                Bases[2] = null;
+                Bases[2] = Bases[1];
+                Bases[1] = Bases[0];
+            }
+            else if (Bases[0] is not null && Bases[1] is not null)
+            {
+                // Runners move
+                Bases[2] = Bases[1];
+                Bases[1] = Bases[0];
+            }
+            else if (Bases[0] is not null)
+            {
+                // Runners move
+                Bases[1] = Bases[0];
+            }
+
+            Bases[0] = CurrentHitter;
+
+            NextHitter();
+        }
         private void BallInPlay()
         {
-            /*
-             * According to 2024 stats
-             * Single = 65%
-             * Double = 19.5%
-             * Triple = 0.1%
-             * Homerun = 15.4%
-             * https://www.baseball-reference.com/leagues/majors/bat.shtml
-             */
-
-            /*
-            int randomHit = Random.Shared.Next(0, 101);
-
-            if (randomHit < 66)
-            {
-                SingleHit();
-            }
-            else if (randomHit >= 66 && randomHit <= 84)
-            {
-                DoubleHit();
-            }
-            else if (randomHit >= 85 && randomHit <= 94)
-            {
-                TripleHit();
-            }
-            else
-            {
-                Homerun();
-            }
-            */
-
             /*
              * According to ChatGPT
              * Fly balls: Environ 35 - 40 %
@@ -261,6 +278,9 @@ namespace DiamondLegends.BLL.Generators
             //    Doubles : Environ 20 %
             //    Triples : Environ 2 %
             //    Home Runs: Environ 15 %
+
+            CurrentHitter.AB++;
+
             int randomFly = Random.Shared.Next(0, 101);
 
             if (randomFly <= 16)
@@ -292,6 +312,9 @@ namespace DiamondLegends.BLL.Generators
             //    Doubles : Environ 3 %
             //    Triples : Moins de 1 %
             //    Home Runs: Pratiquement 0 %
+
+            CurrentHitter.AB++;
+
             int randomGround = Random.Shared.Next(0, 101);
 
             if (randomGround <= 23)
@@ -320,6 +343,8 @@ namespace DiamondLegends.BLL.Generators
             //    Triples : Environ 2 %
             //    Home Runs: Environ 6 %
 
+            CurrentHitter.AB++;
+
             int randomLine = Random.Shared.Next(0, 101);
 
             if (randomLine <= 65)
@@ -346,6 +371,8 @@ namespace DiamondLegends.BLL.Generators
         private void StrikeOut()
         {
             CurrentHitter.SO++;
+            CurrentHitter.AB++;
+
             CurrentPitcher.SO++;
 
             if (NbOuts < 2)
@@ -628,6 +655,8 @@ namespace DiamondLegends.BLL.Generators
         private void Homerun()
         {
             CurrentHitter.HR++;
+            CurrentHitter.H++;
+
             CurrentPitcher.HR++;
 
             CurrentHits++;
@@ -659,13 +688,14 @@ namespace DiamondLegends.BLL.Generators
         }
         private void Score(GameOffensiveStats scorer)
         {
-            
+
             CurrentRuns++;
             CurrentHitter.RBI++;
             CurrentPitcher.R++;
             scorer.R++;
 
-            if (isWalkOff()) {
+            if (isWalkOff())
+            {
                 GameOver = true;
             }
         }
@@ -674,17 +704,15 @@ namespace DiamondLegends.BLL.Generators
             Balls = 0;
             Strikes = 0;
         }
-
         private bool isWalkOff()
         {
-            if (Offense == HomeLineUp && HalfInnings >= 16 && RunsHome > RunsAway)
+            if (Offense == HomeLineUp && HalfInnings > 16 && RunsHome > RunsAway)
             {
                 return true;
             }
 
             return false;
         }
-
         private void ChangeField()
         {
             ResetCount();
@@ -692,6 +720,10 @@ namespace DiamondLegends.BLL.Generators
             Bases = [null, null, null];
 
             HalfInnings++;
+
+            CurrentPitcher.IP++;
+
+            UpdatingPlayersStats();
 
             // Rotate teams
             if (Offense == HomeLineUp)
@@ -701,7 +733,7 @@ namespace DiamondLegends.BLL.Generators
 
                 CurrentPitcher = LastPitcherHome;
 
-                int positionNextHitter = AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) > -1 ? AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) + 1 : 0;
+                int positionNextHitter = LastHitterHome is not null && AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) > -1 ? AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) + 1 : 0;
 
                 positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
 
@@ -713,8 +745,6 @@ namespace DiamondLegends.BLL.Generators
 
                 HitsHome += CurrentHits;
                 CurrentHits = 0;
-
-                (Offense, Defense) = (Defense, Offense);
             }
             else
             {
@@ -723,7 +753,7 @@ namespace DiamondLegends.BLL.Generators
 
                 CurrentPitcher = LastPitcherAway;
 
-                int positionNextHitter = HomeLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) > -1 ? HomeLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) + 1 : 0;
+                int positionNextHitter = LastHitterHome is not null && HomeLineUp.FindIndex(p => p.Player.Id == LastHitterHome.Player.Id) > -1 ? HomeLineUp.FindIndex(p => p.Player.Id == LastHitterHome.Player.Id) + 1 : 0;
 
                 positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
 
@@ -735,14 +765,30 @@ namespace DiamondLegends.BLL.Generators
 
                 HitsAway += CurrentHits;
                 CurrentHits = 0;
-
-                (Offense, Defense) = (Defense, Offense);
             }
 
+            (Offense, Defense) = (Defense, Offense);
+
             // Check if game is over
-            if ((HalfInnings >= 17 && RunsHome != RunsAway) || isWalkOff())
+            if ((HalfInnings > 17 && RunsHome != RunsAway) || isWalkOff())
             {
                 GameOver = true;
+            }
+        }
+        private void UpdatingPlayersStats()
+        {
+            foreach(GameOffensiveStats player in Offense)
+            {
+                player.AVG = (decimal)player.AB > 0 ? Math.Round(((decimal)player.H + (decimal)player.Double + (decimal)player.Triple + (decimal)player.HR) / (decimal)player.AB, 3) : 0;
+
+                // OBP = (Hits + Walks + Hit by Pitch) ÷ (At Bats + Walks + Hit by Pitch + Sacrifice Flies)
+                player.OBP = ((decimal)player.AB + (decimal)player.BB) > 0 ? Math.Round((((decimal)player.H + (decimal)player.Double + (decimal)player.Triple + (decimal)player.HR + (decimal)player.BB) / ((decimal)player.AB + (decimal)player.BB)), 3) : 0;
+
+                // 1B + 2Bx2 + 3Bx3 + HRx4)/ AB
+                player.SLG = (decimal)player.AB > 0 ? Math.Round( ( (decimal)player.H + ((decimal)player.Double * 2) + ((decimal)player.Triple * 3) + ((decimal)player.HR * 4) ) / (decimal)player.AB, 3 ) : 0;
+
+                // SLG + OBP
+                player.OPS = Math.Round((decimal)player.SLG + (decimal)player.OBP, 3);
             }
         }
     }

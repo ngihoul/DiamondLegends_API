@@ -11,6 +11,7 @@ namespace DiamondLegends.API.DTO
         public int Season { get; set; }
         public TeamViewCalendar Away { get; set; }
         public TeamViewCalendar Home { get; set; }
+        public int HalfInnings { get; set; } = 0;
         public int AwayRuns { get; set; } = 0;
         public int HomeRuns { get; set; } = 0;
         public int AwayHits { get; set; } = 0;
@@ -28,6 +29,7 @@ namespace DiamondLegends.API.DTO
         public int Season { get; set; }
         public TeamViewCalendar Away { get; set; }
         public TeamViewCalendar Home { get; set; }
+        public int HalfInnings { get; set; } = 0;
         public int AwayRuns { get; set; } = 0;
         public int HomeRuns { get; set; } = 0;
         public int AwayHits { get; set; } = 0;
@@ -42,10 +44,10 @@ namespace DiamondLegends.API.DTO
         public PlayerViewGameRecap Player { get; set; }
         public int Order { get; set; }
         public Position Position { get; set; }
-        public double? AVG { get; set; }
-        public double? OBP { get; set; }
-        public double? SLG { get; set; }
-        public double? OPS { get; set; }
+        public decimal? AVG { get; set; }
+        public decimal? OBP { get; set; }
+        public decimal? SLG { get; set; }
+        public decimal? OPS { get; set; }
         public int PA { get; set; }
         public int AB { get; set; }
         public int R { get; set; }
@@ -65,9 +67,9 @@ namespace DiamondLegends.API.DTO
     {
         public int Id { get; set; }
         public PlayerViewGameRecap Player { get; set; }
-        public double? ERA { get; set; }
-        public double? WHIP { get; set; }
-        public double? AVG { get; set; }
+        public decimal? ERA { get; set; }
+        public decimal? WHIP { get; set; }
+        public decimal? AVG { get; set; }
         public int W { get; set; }
         public int L { get; set; }
         public int G { get; set; }

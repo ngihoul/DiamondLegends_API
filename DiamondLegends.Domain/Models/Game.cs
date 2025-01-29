@@ -14,6 +14,7 @@ namespace DiamondLegends.Domain.Models
         public int Status { get; set; } = 0;
         public Team Away { get; set; }
         public Team Home { get; set; }
+        public int HalfInnings { get; set; } = 0;
         public int AwayRuns { get; set; } = 0;
         public int HomeRuns { get; set; } = 0;
         public int AwayHits { get; set; } = 0;

@@ -39,7 +39,7 @@ namespace DiamondLegends.DAL.Repositories
             {
                 SqlCommand command = connection.CreateCommand();
 
-                command.CommandText = "SELECT G.Id, G.Date, G.Season, T.Id AS AwayId, T.Name AS AwayName, T.Abbreviation AS AwayAbbreviation, T2.Id AS HomeId, T2.Name AS HomeName, T2.Abbreviation AS HomeAbbreviation, G.Away_runs, G.Home_runs, G.Away_hits, G.Home_hits, G.Away_errors, G.Home_errors " +
+                command.CommandText = "SELECT G.Id, G.Date, G.Season, T.Id AS AwayId, T.Name AS AwayName, T.Abbreviation AS AwayAbbreviation, T2.Id AS HomeId, T2.Name AS HomeName, T2.Abbreviation AS HomeAbbreviation, G.Half_innings, G.Away_runs, G.Home_runs, G.Away_hits, G.Home_hits, G.Away_errors, G.Home_errors " +
                     "FROM Games AS G " +
                     "JOIN Teams AS T ON G.Away = T.Id " +
                     "JOIN Teams AS T2 ON G.Home = T2.Id " +
@@ -68,7 +68,7 @@ namespace DiamondLegends.DAL.Repositories
             {
                 SqlCommand command = connection.CreateCommand();
 
-                command.CommandText = "SELECT G.Id, G.Date, G.Season, T.Id AS AwayId, T.Name AS AwayName, T.Abbreviation AS AwayAbbreviation, T2.Id AS HomeId, T2.Name AS HomeName, T2.Abbreviation AS HomeAbbreviation, G.Away_runs, G.Home_runs, G.Away_hits, G.Home_hits, G.Away_errors, G.Home_errors " +
+                command.CommandText = "SELECT G.Id, G.Date, G.Season, T.Id AS AwayId, T.Name AS AwayName, T.Abbreviation AS AwayAbbreviation, T2.Id AS HomeId, T2.Name AS HomeName, T2.Abbreviation AS HomeAbbreviation, G.Half_innings, G.Away_runs, G.Home_runs, G.Away_hits, G.Home_hits, G.Away_errors, G.Home_errors " +
                     "FROM Games AS G " +
                     "JOIN Teams AS T ON G.Away = T.Id " +
                     "JOIN Teams AS T2 ON G.Home = T2.Id";

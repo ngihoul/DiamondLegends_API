@@ -7,9 +7,9 @@ namespace DiamondLegends.Domain.Models
         public int Id { get; set; }
         public Game Game { get; set; }
         public Player Player { get; set; }
-        public double? ERA { get; set; } = 0.000;
-        public double? WHIP { get; set; } = 0.000;
-        public double? AVG { get; set; } = 0.000;
+        public decimal? ERA { get; set; } = (decimal?)0.000;
+        public decimal? WHIP { get; set; } = (decimal?)0.000;
+        public decimal? AVG { get; set; } = (decimal?)0.000;
         public int W { get; set; } = 0;
         public int L { get; set; } = 0;
         public int G { get; set; } = 0;
