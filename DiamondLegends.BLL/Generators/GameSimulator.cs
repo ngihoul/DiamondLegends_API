@@ -63,7 +63,7 @@ namespace DiamondLegends.BLL.Generators
             CurrentHitter.PA++;
         }
 
-        // TODO: Handling pitching changes
+        // TODO: Handling pitchers' changes
         // TODO: Handling Stolen bases
         // TODO: Take in account Players' stats
         // TODO: AB, IP, E (instead of ER for pitchers)
@@ -677,7 +677,7 @@ namespace DiamondLegends.BLL.Generators
 
         private bool isWalkOff()
         {
-            if (Offense == HomeLineUp && HalfInnings >= 18 && RunsHome > RunsAway)
+            if (Offense == HomeLineUp && HalfInnings >= 16 && RunsHome > RunsAway)
             {
                 return true;
             }
@@ -689,54 +689,58 @@ namespace DiamondLegends.BLL.Generators
         {
             ResetCount();
             NbOuts = 0;
+            Bases = [null, null, null];
+
             HalfInnings++;
 
             // Rotate teams
             if (Offense == HomeLineUp)
             {
-                (Offense, Defense) = (Defense, Offense);
-
                 LastHitterHome = CurrentHitter;
                 LastPitcherAway = CurrentPitcher;
 
                 CurrentPitcher = LastPitcherHome;
 
-                int positionNextHitter = AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) > -1 ? Offense.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) + 1 : 0;
+                int positionNextHitter = AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) > -1 ? AwayLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) + 1 : 0;
 
                 positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
 
-                CurrentHitter = Offense[positionNextHitter];
+                CurrentHitter = AwayLineUp[positionNextHitter];
+                CurrentHitter.PA++;
 
                 RunsHome += CurrentRuns;
                 CurrentRuns = 0;
 
                 HitsHome += CurrentHits;
                 CurrentHits = 0;
+
+                (Offense, Defense) = (Defense, Offense);
             }
             else
             {
-                (Offense, Defense) = (Defense, Offense);
-
                 LastHitterAway = CurrentHitter;
                 LastPitcherHome = CurrentPitcher;
 
                 CurrentPitcher = LastPitcherAway;
 
-                int positionNextHitter = Offense.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) > -1 ? Offense.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) + 1 : 0;
+                int positionNextHitter = HomeLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) > -1 ? HomeLineUp.FindIndex(p => p.Player.Id == LastHitterAway.Player.Id) + 1 : 0;
 
                 positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
 
-                CurrentHitter = Offense[positionNextHitter];
+                CurrentHitter = HomeLineUp[positionNextHitter];
+                CurrentHitter.PA++;
 
                 RunsAway += CurrentRuns;
                 CurrentRuns = 0;
 
                 HitsAway += CurrentHits;
                 CurrentHits = 0;
+
+                (Offense, Defense) = (Defense, Offense);
             }
 
             // Check if game is over
-            if ((HalfInnings > 18 && RunsHome != RunsAway) || isWalkOff())
+            if ((HalfInnings >= 17 && RunsHome != RunsAway) || isWalkOff())
             {
                 GameOver = true;
             }
