@@ -46,6 +46,7 @@ namespace DiamondLegends.API.DTO
         public double? OBP { get; set; }
         public double? SLG { get; set; }
         public double? OPS { get; set; }
+        public int PA { get; set; }
         public int AB { get; set; }
         public int R { get; set; }
         public int H { get; set; }

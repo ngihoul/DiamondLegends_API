@@ -56,6 +56,7 @@ namespace DiamondLegends.API.Mappers
                 OBP = offensiveStats.OBP,
                 SLG = offensiveStats.SLG,
                 OPS = offensiveStats.OPS,
+                PA = offensiveStats.PA,
                 AB = offensiveStats.AB,
                 R = offensiveStats.R,
                 H = offensiveStats.H,

@@ -13,6 +13,7 @@ namespace DiamondLegends.Domain.Models
         public double? OBP { get; set; } = 0.000;
         public double? SLG { get; set; } = 0.000;
         public double? OPS { get; set; } = 0.000;
+        public int PA { get; set; } = 0;
         public int AB { get; set; } = 0;
         public int R { get; set; } = 0;
         public int H { get; set; } = 0;
