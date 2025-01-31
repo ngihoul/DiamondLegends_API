@@ -37,6 +37,7 @@ namespace DiamondLegends.API.DTO
         public int Bat { get; set; }
         public int Energy { get; set; } = 100;
         public IEnumerable<Position> Positions { get; set; }
+        public decimal? AVG { get; set; }
     }
 
     public class PlayerViewGameRecap

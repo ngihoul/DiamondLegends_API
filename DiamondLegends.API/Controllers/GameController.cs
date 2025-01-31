@@ -44,7 +44,7 @@ namespace DiamondLegends.API.Controllers
         }
 
         [HttpPost("play/{id:int}")]
-        public async Task<ActionResult<GameView>> Play([FromRoute] int id, [FromBody] GameLineUp lineUp)
+        public async Task<ActionResult<GameResultView>> Play([FromRoute] int id, [FromBody] GameLineUp lineUp)
         {
             if(lineUp is null || !ModelState.IsValid)
             {
@@ -53,7 +53,7 @@ namespace DiamondLegends.API.Controllers
 
             Game game = await _gameService.Play(id, lineUp);
 
-            return Ok(game.ToView());
+            return Ok(game.ToResultView());
         }
     }
 }

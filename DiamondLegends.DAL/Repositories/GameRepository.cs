@@ -10,6 +10,8 @@ namespace DiamondLegends.DAL.Repositories
 {
     public class GameRepository : IGameRepository
     {
+        private const string BASE_SELECT_QUERY = "SELECT G.Id, G.Date, G.Season, G.Status, T.Id AS AwayId, T.Name AS AwayName, T.Abbreviation AS AwayAbbreviation, T2.Id AS HomeId, T2.Name AS HomeName, T2.Abbreviation AS HomeAbbreviation, G.Half_innings, G.Away_runs, G.Home_runs, G.Away_hits, G.Home_hits, G.Away_errors, G.Home_errors FROM Games AS G ";
+
         private readonly IDbConnectionFactory _connection;
         private readonly IOffensiveStatsRepository _offensiveStatsRepository;
         private readonly IPitchingStatsRepository _pitchingStatsRepository;
@@ -28,10 +30,10 @@ namespace DiamondLegends.DAL.Repositories
                 await connection.OpenAsync();
 
                 game.Id = await connection.QuerySingleAsync<int>(
-                    "INSERT INTO Games([Date], Season, Away, Home) " +
+                    "INSERT INTO Games([Date], Season, Status, Away, Home) " +
                     "OUTPUT INSERTED.Id " +
                     "VALUES (@Date, @Season, @Away, @Home)",
-                    new { Date = game.Date, Season = game.Season, Away = game.Away.Id, Home = game.Home.Id }
+                    new { Date = game.Date, Season = game.Season, Status = game.Status, Away = game.Away.Id, Home = game.Home.Id }
                 );
 
                 return game;
@@ -44,8 +46,7 @@ namespace DiamondLegends.DAL.Repositories
             {
                 SqlCommand command = connection.CreateCommand();
 
-                command.CommandText = "SELECT G.Id, G.Date, G.Season, T.Id AS AwayId, T.Name AS AwayName, T.Abbreviation AS AwayAbbreviation, T2.Id AS HomeId, T2.Name AS HomeName, T2.Abbreviation AS HomeAbbreviation, G.Half_innings, G.Away_runs, G.Home_runs, G.Away_hits, G.Home_hits, G.Away_errors, G.Home_errors " +
-                    "FROM Games AS G " +
+                command.CommandText = BASE_SELECT_QUERY +
                     "JOIN Teams AS T ON G.Away = T.Id " +
                     "JOIN Teams AS T2 ON G.Home = T2.Id " +
                     "WHERE G.Id = @Id";
@@ -73,8 +74,7 @@ namespace DiamondLegends.DAL.Repositories
             {
                 SqlCommand command = connection.CreateCommand();
 
-                command.CommandText = "SELECT G.Id, G.Date, G.Season, T.Id AS AwayId, T.Name AS AwayName, T.Abbreviation AS AwayAbbreviation, T2.Id AS HomeId, T2.Name AS HomeName, T2.Abbreviation AS HomeAbbreviation, G.Half_innings, G.Away_runs, G.Home_runs, G.Away_hits, G.Home_hits, G.Away_errors, G.Home_errors " +
-                    "FROM Games AS G " +
+                command.CommandText = BASE_SELECT_QUERY +
                     "JOIN Teams AS T ON G.Away = T.Id " +
                     "JOIN Teams AS T2 ON G.Home = T2.Id";
 
@@ -142,10 +142,11 @@ namespace DiamondLegends.DAL.Repositories
                         using SqlCommand command = connection.CreateCommand();
                         command.Transaction = (SqlTransaction)transaction;
 
-                        command.CommandText = "UPDATE [Games] SET Date = @Date, Season = @Season, Away = @Away, Home = @Home, Half_innings = @HalfInnings, Away_runs = @AwayRuns, Home_runs = @HomeRuns, Away_hits = @AwayHits, Home_hits = @HomeHits, Away_errors = @AwayErrors, Home_errors = @HomeErrors WHERE Id = @Id";
+                        command.CommandText = "UPDATE [Games] SET Date = @Date, Season = @Season, Status = @Status, Away = @Away, Home = @Home, Half_innings = @HalfInnings, Away_runs = @AwayRuns, Home_runs = @HomeRuns, Away_hits = @AwayHits, Home_hits = @HomeHits, Away_errors = @AwayErrors, Home_errors = @HomeErrors WHERE Id = @Id";
 
                         command.Parameters.AddWithValue("@Date", game.Date);
                         command.Parameters.AddWithValue("@Season", game.Season);
+                        command.Parameters.AddWithValue("@Status", game.Status);
                         command.Parameters.AddWithValue("@Away", game.Away.Id);
                         command.Parameters.AddWithValue("@Home", game.Home.Id);
                         command.Parameters.AddWithValue("@HalfInnings", game.HalfInnings);

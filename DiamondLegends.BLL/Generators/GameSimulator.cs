@@ -26,7 +26,7 @@ namespace DiamondLegends.BLL.Generators
 
         private Game _game = new Game();
 
-        private GameOffensiveStats[] _bases = { null, null, null };
+        private GameOffensiveStats?[] _bases = { null, null, null };
 
         private readonly List<GameOffensiveStats> _awayLineUp = new List<GameOffensiveStats>();
         private readonly List<GameOffensiveStats> _homeLineUp = new List<GameOffensiveStats>();
@@ -38,7 +38,7 @@ namespace DiamondLegends.BLL.Generators
         private List<GameOffensiveStats> _offense = new List<GameOffensiveStats>();
 
         private GamePitchingStats _currentPitcher = new GamePitchingStats();
-        private GameOffensiveStats? _currentHitter = null;
+        private GameOffensiveStats _currentHitter = new GameOffensiveStats();
 
         private GameOffensiveStats? _lastHitterHome = null;
         private GameOffensiveStats? _lastHitterAway = null;
@@ -74,6 +74,7 @@ namespace DiamondLegends.BLL.Generators
             _offense = _awayLineUp;
 
             _currentPitcher = _homeStartingPitcher;
+
             _currentHitter = _offense[0];
             _currentHitter.PA++;
         }
@@ -742,7 +743,7 @@ namespace DiamondLegends.BLL.Generators
         private bool isWalkOff()
 
         {
-            if (_offense == _homeLineUp && _halfInnings > 16 && _runsHome > _runsAway)
+            if (_offense == _homeLineUp && _halfInnings >= 16 && _runsHome > _runsAway)
             {
                 return true;
             }
@@ -752,70 +753,80 @@ namespace DiamondLegends.BLL.Generators
 
         private void ChangeField()
         {
-            ResetCount();
-            _nbOuts = 0;
-            _bases = [null, null, null];
-
-            _halfInnings++;
-
             _currentPitcher.IP++;
 
             UpdatingPlayersStats();
 
-            // Rotate teams
-            if (_offense == _homeLineUp)
+            // Check if game is over
+            if ((_halfInnings >= 17 && _runsHome != _runsAway))
             {
-                _lastHitterHome = _currentHitter;
-                _lastPitcherAway = _currentPitcher;
-
-                _currentPitcher = _lastPitcherHome;
-
-                int positionNextHitter = _lastHitterHome is not null && _awayLineUp.FindIndex(p => p.Player.Id == _lastHitterAway.Player.Id) > -1 ? _awayLineUp.FindIndex(p => p.Player.Id == _lastHitterAway.Player.Id) + 1 : 0;
-
-                positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
-
-                _currentHitter = _awayLineUp[positionNextHitter];
-                _currentHitter.PA++;
-
-                _runsHome += _currentRuns;
-                _currentRuns = 0;
-
-                _hitsHome += _currentHits;
-                _currentHits = 0;
+                _gameOver = true;
             }
             else
             {
-                _lastHitterAway = _currentHitter;
-                _lastPitcherHome = _currentPitcher;
+                ResetCount();
 
-                _currentPitcher = _lastPitcherAway;
+                _nbOuts = 0;
+                _bases = [null, null, null];
 
-                int positionNextHitter = _lastHitterHome is not null && _homeLineUp.FindIndex(p => p.Player.Id == _lastHitterHome.Player.Id) > -1 ? _homeLineUp.FindIndex(p => p.Player.Id == _lastHitterHome.Player.Id) + 1 : 0;
+                _halfInnings++;
 
-                positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
+                // Rotate teams
+                if (_offense == _homeLineUp)
+                {
+                    _lastHitterHome = _currentHitter;
+                    _lastPitcherAway = _currentPitcher;
 
-                _currentHitter = _homeLineUp[positionNextHitter];
-                _currentHitter.PA++;
+                    _currentPitcher = _lastPitcherHome;
 
-                _runsAway += _currentRuns;
-                _currentRuns = 0;
+                    int positionNextHitter = _lastHitterHome is not null && _awayLineUp.FindIndex(p => p.Player.Id == _lastHitterAway.Player.Id) > -1 ? _awayLineUp.FindIndex(p => p.Player.Id == _lastHitterAway.Player.Id) + 1 : 0;
 
-                _hitsAway += _currentHits;
-                _currentHits = 0;
-            }
+                    positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
 
-            (_offense, _defense) = (_defense, _offense);
+                    _currentHitter = _awayLineUp[positionNextHitter];
+                    _currentHitter.PA++;
 
-            // Check if game is over
-            if ((_halfInnings > 17 && _runsHome != _runsAway) || isWalkOff())
-            {
-                _gameOver = true;
+                    _runsHome += _currentRuns;
+                    _currentRuns = 0;
+
+                    _hitsHome += _currentHits;
+                    _currentHits = 0;
+                }
+                else
+                {
+                    _lastHitterAway = _currentHitter;
+                    _lastPitcherHome = _currentPitcher;
+
+                    _currentPitcher = _lastPitcherAway;
+
+                    int positionNextHitter = _lastHitterHome is not null && _homeLineUp.FindIndex(p => p.Player.Id == _lastHitterHome.Player.Id) > -1 ? _homeLineUp.FindIndex(p => p.Player.Id == _lastHitterHome.Player.Id) + 1 : 0;
+
+                    positionNextHitter = positionNextHitter > 8 ? 0 : positionNextHitter;
+
+                    _currentHitter = _homeLineUp[positionNextHitter];
+                    _currentHitter.PA++;
+
+                    _runsAway += _currentRuns;
+                    _currentRuns = 0;
+
+                    _hitsAway += _currentHits;
+                    _currentHits = 0;
+                }
+
+                (_offense, _defense) = (_defense, _offense);
+                
+                // Check if last home offense is necessary
+                if(isWalkOff())
+                {
+                    _gameOver = true;
+                }
             }
         }
 
         private void UpdatingPlayersStats()
         {
-            foreach(GameOffensiveStats player in _offense)
+            // Calculate offense players' stats
+            foreach (GameOffensiveStats player in _offense)
             {
                 player.AVG = (decimal)player.AB > 0 ? Math.Round(((decimal)player.H + (decimal)player.Double + (decimal)player.Triple + (decimal)player.HR) / (decimal)player.AB, 3) : 0;
 
@@ -823,11 +834,21 @@ namespace DiamondLegends.BLL.Generators
                 player.OBP = ((decimal)player.AB + (decimal)player.BB) > 0 ? Math.Round((((decimal)player.H + (decimal)player.Double + (decimal)player.Triple + (decimal)player.HR + (decimal)player.BB) / ((decimal)player.AB + (decimal)player.BB)), 3) : 0;
 
                 // 1B + 2Bx2 + 3Bx3 + HRx4)/ AB
-                player.SLG = (decimal)player.AB > 0 ? Math.Round( ( (decimal)player.H + ((decimal)player.Double * 2) + ((decimal)player.Triple * 3) + ((decimal)player.HR * 4) ) / (decimal)player.AB, 3 ) : 0;
+                player.SLG = (decimal)player.AB > 0 ? Math.Round(((decimal)player.H + ((decimal)player.Double * 2) + ((decimal)player.Triple * 3) + ((decimal)player.HR * 4)) / (decimal)player.AB, 3) : 0;
 
                 // SLG + OBP
                 player.OPS = Math.Round((decimal)player.SLG + (decimal)player.OBP, 3);
             }
+
+            // Calculate pitcher stat
+            _currentPitcher.ERA = _currentPitcher.IP > 0 ? Math.Round((decimal)_currentPitcher.R / (decimal)_currentPitcher.IP * 9, 3) : 0;
+
+            // TODO : adding AB to pitchers' stats
+            // _currentPitcher.AVG = _currentPitcher.AB > 0 ? Math.Round((decimal)_currentPitcher.H / (decimal)_currentPitcher.AB, 3) : 0;
+
+            _currentPitcher.WHIP = _currentPitcher.IP > 0 ? Math.Round(((decimal)_currentPitcher.H + (decimal)_currentPitcher.BB) / (decimal)_currentPitcher.IP, 3) : 0;
+
+            _currentPitcher.CG = _currentPitcher.IP == 9 ? 1 : 0;
         }
         #endregion
     }

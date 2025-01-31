@@ -13,6 +13,27 @@ namespace DiamondLegends.API.Mappers
                 Id = game.Id,
                 Date = game.Date,
                 Season = game.Season,
+                Status = game.Status,
+                Away = game.Away.ToViewCalendar(),
+                Home = game.Home.ToViewCalendar(),
+                HalfInnings = game.HalfInnings,
+                AwayRuns = game.AwayRuns,
+                HomeRuns = game.HomeRuns,
+                AwayHits = game.AwayHits,
+                HomeHits = game.HomeHits,
+                AwayErrors = game.AwayErrors,
+                HomeErrors = game.HomeErrors
+            };
+        }
+
+        public static GameResultView ToResultView(this Game game)
+        {
+            return new GameResultView()
+            {
+                Id = game.Id,
+                Date = game.Date,
+                Season = game.Season,
+                Status = game.Status,
                 Away = game.Away.ToViewCalendar(),
                 Home = game.Home.ToViewCalendar(),
                 HalfInnings = game.HalfInnings,
@@ -34,6 +55,7 @@ namespace DiamondLegends.API.Mappers
                 Id = game.Id,
                 Date = game.Date,
                 Season = game.Season,
+                Status = game.Status,
                 Away = game.Away.ToViewCalendar(),
                 Home = game.Home.ToViewCalendar(),
                 HalfInnings = game.HalfInnings,

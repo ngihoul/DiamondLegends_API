@@ -43,7 +43,8 @@ namespace DiamondLegends.API.Mappers
                 Throw = player.Throw,
                 Bat = player.Bat,
                 Energy = player.Energy,
-                Positions = player.Positions
+                Positions = player.Positions,
+                AVG = player.AVG
             };
         }
 

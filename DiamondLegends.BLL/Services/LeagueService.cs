@@ -27,14 +27,14 @@ namespace DiamondLegends.BLL.Services
             return league;
         }
 
-        public async Task<League> NextDay(int leagueId)
+        public async Task<League> NextDay(int leagueId, int teamId)
         {
-            return await AdvanceLeague(leagueId, (date, _) => date.AddDays(1));
+            return await AdvanceLeague(leagueId, teamId, (date, _) => date.AddDays(1));
         }
 
-        public async Task<League> NextGame(int leagueId)
+        public async Task<League> NextGame(int leagueId, int teamId)
         {
-            return await AdvanceLeague(leagueId, (date, nextGameDay) =>
+            return await AdvanceLeague(leagueId, teamId, (date, nextGameDay) =>
             {
                 while (date < nextGameDay)
                 {
@@ -43,7 +43,7 @@ namespace DiamondLegends.BLL.Services
                 return date;
             });
         }
-        private async Task<League> AdvanceLeague(int leagueId, Func<DateTime, DateTime, DateTime> dateAdvancer)
+        private async Task<League> AdvanceLeague(int leagueId, int teamId, Func<DateTime, DateTime, DateTime> dateAdvancer)
         {
             League league = await GetById(leagueId);
 
@@ -52,9 +52,9 @@ namespace DiamondLegends.BLL.Services
                 throw new ArgumentException("La ligue n'existe pas.");
             }
 
-            league.Games = await _gameRepository.GetAll(new GameQuery() { LeagueId = league.Id });
+            league.Games = await _gameRepository.GetAll(new GameQuery() { LeagueId = league.Id, TeamId = teamId });
 
-            DateTime nextGameDay = league.Games.Where(g => g.Status == Game.TO_BE_PLAYED).OrderBy(g => g.Date).First().Date;
+            DateTime nextGameDay = league.Games.Where(g => g.Away.Id == teamId || g.Home.Id == teamId).Where(g => g.Status == Game.TO_BE_PLAYED).OrderBy(g => g.Date).First().Date;
 
             if (league.InGameDate >= nextGameDay)
             {

@@ -17,6 +17,7 @@ namespace DiamondLegends.Domain.Models
         public Country Nationality { get; set; }
         public int Throw { get; set; }
         public int Bat { get; set; }
+        public decimal? AVG { get; set; }
         public decimal Salary { get; set; }
         public int Energy { get; set; } = 100;
         public int Contact { get; set; }

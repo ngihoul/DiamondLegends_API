@@ -74,6 +74,7 @@ namespace DiamondLegends.DAL.Mappers
                 Throw = (int)reader["Throw"],
                 Bat = (int)reader["Bat"],
                 Energy = (int)reader["Energy"],
+                AVG = DBNull.Value == reader["AVG"] ? null : Convert.ToDecimal(reader["AVG"]),
             };
         }
     }
