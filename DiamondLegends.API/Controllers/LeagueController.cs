@@ -1,4 +1,5 @@
 ﻿using DiamondLegends.API.DTO;
+using DiamondLegends.API.Extensions;
 using DiamondLegends.API.Mappers;
 using DiamondLegends.BLL.Services.Interfaces;
 using DiamondLegends.Domain.Models;
@@ -32,41 +33,50 @@ namespace DiamondLegends.API.Controllers
             return Ok(league.ToView());
         }
 
-        [HttpGet("{leagueId" +
-            ":int}/next-day")]
+        [HttpGet("{leagueId:int}/next-day/{teamId:int}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LeagueView>> NextDay([FromRoute] int leagueId)
+        public async Task<ActionResult<LeagueView>> NextDay([FromRoute] int leagueId, [FromRoute] int teamId)
         {
             if(leagueId <= 0)
             {
                 throw new ArgumentNullException("L'id n'est pas valable.");
             }
 
-            League league = await _leagueService.NextDay(leagueId);
+            if(teamId <= 0)
+            {
+                throw new ArgumentNullException("L'id n'est pas valable.");
+            }
+
+            League league = await _leagueService.NextDay(leagueId, teamId);
 
             return Ok(league.ToView());
         }
 
-        [HttpGet("{leagueId:int}/next-game")]
+        [HttpGet("{leagueId:int}/next-game/{teamId:int}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LeagueView>> NextGame([FromRoute] int leagueId)
+        public async Task<ActionResult<LeagueView>> NextGame([FromRoute] int leagueId, [FromRoute] int teamId)
         {
             if (leagueId <= 0)
             {
                 throw new ArgumentNullException("L'id n'est pas valable.");
             }
 
-            League league = await _leagueService.NextGame(leagueId);
+            if (teamId <= 0)
+            {
+                throw new ArgumentNullException("L'id n'est pas valable.");
+            }
+
+            League league = await _leagueService.NextGame(leagueId, teamId);
 
             return Ok(league.ToView());
         }

@@ -5,6 +5,8 @@ using DiamondLegends.Domain.Enums;
 using DiamondLegends.Domain.Models;
 using Microsoft.Data.SqlClient;
 using DiamondLegends.DAL.Mappers;
+using System.Runtime.Intrinsics.X86;
+using System.Text.RegularExpressions;
 
 namespace DiamondLegends.DAL.Repositories
 {
@@ -127,20 +129,17 @@ namespace DiamondLegends.DAL.Repositories
             using(var connection = _connection.Create())
             {
                 SqlCommand command = connection.CreateCommand();
-
-                command.CommandText = "SELECT P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id AS NationalityId, C.Name AS NationalityName, C.Alpha2 AS NationalityAlpha2, P.[Throw], P.Bat, P.Salary, P.Energy " +
+                command.CommandText = "SELECT P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id AS NationalityId, C.Name AS NationalityName, C.Alpha2 AS NationalityAlpha2, P.[Throw], P.Bat, P.Salary, P.Energy, ROUND(AVG(((CAST(OS.H AS DECIMAL) + CAST(OS.[2B] AS DECIMAL) + CAST(OS.[3B] AS DECIMAL) + CAST(OS.HR AS DECIMAL)) / CAST(OS.AB AS DECIMAL))), 3) AS [AVG] " +
                     "FROM Players AS P " +
                     "JOIN Countries AS C ON P.Nationality = C.Id " +
                     "JOIN Rosters AS R ON P.Id = R.Player " +
-                    "JOIN Teams AS T ON R.Team = T.Id " +
-                    "WHERE R.Team = @TeamId";
-
+                    "JOIN Teams AS T ON R.Team = T.Id " + 
+                    "LEFT JOIN[Game_Offensive_Stats]  AS OS ON P.Id = OS.Player " +
+                    "WHERE R.Team = @TeamId " +
+                    "GROUP BY P.Id, P.Firstname, P.Lastname, P.Date_of_birth, C.Id, C.Name, C.Alpha2, P.[Throw], P.Bat, P.Salary, P.Energy";
                 command.Parameters.AddWithValue("@TeamId", teamId);
-
                 await connection.OpenAsync();
-
                 List<Player> players = new List<Player>();
-
                 using SqlDataReader reader = await command.ExecuteReaderAsync();
 
                 while (await reader.ReadAsync()) {
