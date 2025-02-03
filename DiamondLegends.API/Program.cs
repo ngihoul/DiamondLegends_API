@@ -3,7 +3,6 @@ using DiamondLegends.BLL.Generators;
 using DiamondLegends.BLL.Services;
 using DiamondLegends.DAL.Factories.Interfaces;
 using DiamondLegends.DAL.Factories;
-using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.DAL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using DiamondLegends.BLL.Services.Interfaces;
 using DiamondLegends.BLL.Generators.Interfaces;
+using DiamondLegends.DAL.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

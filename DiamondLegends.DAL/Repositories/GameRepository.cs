@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using DiamondLegends.DAL.Factories.Interfaces;
-using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.DAL.Mappers;
+using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Models;
 using Microsoft.Data.SqlClient;
 using System.Data;

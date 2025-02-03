@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiamondLegends.DAL.Interfaces
+namespace DiamondLegends.DAL.Repositories.Interfaces
 {
     public interface IOffensiveStatsRepository
     {

@@ -1,6 +1,6 @@
 ﻿using DiamondLegends.BLL.Generators;
 using DiamondLegends.BLL.Services.Interfaces;
-using DiamondLegends.DAL.Interfaces;
+using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Models;
 using System.Transactions;
 

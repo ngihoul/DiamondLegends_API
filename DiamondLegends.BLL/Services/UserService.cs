@@ -1,6 +1,6 @@
 ﻿using CheckMate.BLL.Services;
 using DiamondLegends.BLL.Services.Interfaces;
-using DiamondLegends.DAL.Interfaces;
+using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Models;
 using System.Text.RegularExpressions;
 

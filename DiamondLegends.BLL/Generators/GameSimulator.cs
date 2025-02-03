@@ -1,4 +1,4 @@
-﻿using DiamondLegends.DAL.Interfaces;
+﻿using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Models;
 
 namespace DiamondLegends.BLL.Generators
@@ -84,7 +84,7 @@ namespace DiamondLegends.BLL.Generators
         // TODO: Take in account Players' stats
         // TODO: Defensive Errors
         // TODO:
-        // HBP to Hitters
+        // Adding stats HBP to Hitters
         // 
 
         #region Methods

@@ -1,4 +1,4 @@
-﻿using DiamondLegends.DAL.Interfaces;
+﻿using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Models;
 using System.Text;
 

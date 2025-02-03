@@ -1,5 +1,5 @@
 ﻿using DiamondLegends.BLL.Generators.Interfaces;
-using DiamondLegends.DAL.Interfaces;
+using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Enums;
 using DiamondLegends.Domain.Models;
 
@@ -75,7 +75,7 @@ namespace DiamondLegends.BLL.Generators
                 Player pitcherToTest = await _playerRepository.GetById(pitcher.Id);
                 if (bestStartingPitcher is null || bestStartingPitcher.Energy < pitcherToTest.Energy)
                 {
-                    bestStartingPitcher = pitcherToTest;
+                        bestStartingPitcher = pitcherToTest;
                 }
             }
 

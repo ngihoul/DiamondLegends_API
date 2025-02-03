@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using DiamondLegends.DAL.Interfaces;
 using DiamondLegends.DAL.Factories.Interfaces;
 using DiamondLegends.Domain.Enums;
 using DiamondLegends.Domain.Models;
@@ -7,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using DiamondLegends.DAL.Mappers;
 using System.Runtime.Intrinsics.X86;
 using System.Text.RegularExpressions;
+using DiamondLegends.DAL.Repositories.Interfaces;
 
 namespace DiamondLegends.DAL.Repositories
 {

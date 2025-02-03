@@ -1,6 +1,6 @@
 ﻿using DiamondLegends.Domain.Models;
 
-namespace DiamondLegends.DAL.Interfaces
+namespace DiamondLegends.DAL.Repositories.Interfaces
 {
     public interface IPlayerRepository
     {
