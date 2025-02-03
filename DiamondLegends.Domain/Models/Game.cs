@@ -45,4 +45,15 @@ namespace DiamondLegends.Domain.Models
         public int Order { get; set; }
         public Position Position { get; set; }
     }
+
+    public class GameEvent
+    {
+        
+        public string Message { get; set; } 
+        public int Outs { get; set; } 
+        public int Strikes { get; set; } 
+        public int Balls { get; set; } 
+        public int HalfInnings { get; set; } 
+        public int RunsAway { get; set; } 
+        public int RunsHome { get; set; }    }
 }

@@ -1,4 +1,5 @@
-﻿using DiamondLegends.DAL.Repositories.Interfaces;
+﻿using DiamondLegends.BLL.Services.Interfaces;
+using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Models;
 
 namespace DiamondLegends.BLL.Generators
@@ -7,9 +8,12 @@ namespace DiamondLegends.BLL.Generators
     {
         #region Dependencies
         private readonly IGameRepository _gameRepository;
+        private readonly IPlayByPlayNotifier _notifier;
         #endregion
 
         #region Properties
+        private bool _playByPlay = false;
+
         private bool _gameOver = false;
         private int _halfInnings = 0;
         private int _strikes = 0;
@@ -48,12 +52,15 @@ namespace DiamondLegends.BLL.Generators
         #endregion
 
         #region Constructor
-        public GameSimulator(Game game, List<GameOffensiveStats> offensiveLineUp, GamePitchingStats startingPitcher, List<GameOffensiveStats> opponentLineUp, GamePitchingStats opponentStartingPitcher, IGameRepository gameRepository)
+        public GameSimulator(Game game, List<GameOffensiveStats> offensiveLineUp, GamePitchingStats startingPitcher, List<GameOffensiveStats> opponentLineUp, GamePitchingStats opponentStartingPitcher, bool playByPlay, IGameRepository gameRepository, IPlayByPlayNotifier notifier)
         {
             // Dependencies
             _gameRepository = gameRepository;
+            _notifier = notifier;
 
             // Game
+            _playByPlay = playByPlay;
+
             _game = game;
 
             _awayLineUp = offensiveLineUp.First().Player.Team.Id == _game.Away.Id ? offensiveLineUp : opponentLineUp;
@@ -90,14 +97,24 @@ namespace DiamondLegends.BLL.Generators
         #region Methods
         public async Task<Game> Simulate()
         {
+            if (_playByPlay)
+            {
+                await _notifier.SendEvent(CreateGameEvent($"Le match entre {_game.Away.Name} et {_game.Home.Name} commence."));
+            }
+
             while (!_gameOver)
             {
                 while (_nbOuts < 3 && !_gameOver)
                 {
-                    Pitch();
+                    await Pitch();
+
+                    if (_playByPlay)
+                    {
+                        await Task.Delay(3000);
+                    }
                 }
 
-                ChangeField();
+                await ChangeField();
             }
 
             _game.OffensiveStats = [.. _offense, .. _defense];
@@ -116,12 +133,17 @@ namespace DiamondLegends.BLL.Generators
             // Update Game & Save Stats with transaction
             _game = await _gameRepository.Update(_game);
 
+            if (_playByPlay)
+            {
+                await _notifier.SendEvent(CreateGameEvent($"Le match entre {_game.Away.Name} et {_game.Home.Name} se termine. Victoire de {(_runsHome > _runsAway ? _game.Home.Name : _game.Away.Name)} sur un score de {_runsAway} - {_runsHome} !"));
+            }
+
             return _game;
         }
 
-        private void NextHitter()
+        private async Task NextHitter()
         {
-            ResetCount();
+            await ResetCount();
 
             if (_currentHitter is null)
             {
@@ -144,46 +166,68 @@ namespace DiamondLegends.BLL.Generators
             _currentHitter.PA++;
         }
 
-        private void Pitch()
+        private async Task Pitch()
         {
             int randomPitch = Random.Shared.Next(0, 101);
+
+            if (_playByPlay)
+            {
+                Console.WriteLine("Un pitch !");
+                await _notifier.SendEvent(CreateGameEvent($"{_currentPitcher.Player.Firstname.Substring(0, 1)}. {_currentPitcher.Player.Lastname} lance ..."));
+            }
 
             _currentPitcher.NP++;
 
             if (randomPitch < 43)
             {
-                Ball();
+                await Ball();
+
             }
             else if (randomPitch >= 44 && randomPitch <= 77)
             {
-                Strike();
+                await Strike();
             }
             else if (randomPitch >= 78 && randomPitch <= 87)
             {
-                FoulBall();
+                await FoulBall();
             }
             else if (randomPitch >= 88 && randomPitch <= 89)
             {
-                HitByPitch();
+                await HitByPitch();
             }
             else
             {
-                BallInPlay();
+                await BallInPlay();
             }
         }
 
-        private void Ball()
+        private async Task Ball()
         {
+            if (_playByPlay)
+            {
+                await _notifier.SendEvent(CreateGameEvent($"Ball"));
+            }
+
             // Base on balls
             if (_balls == 3)
             {
+                if (_playByPlay)
+                {
+                    await _notifier.SendEvent(CreateGameEvent($"Base on balls pour {_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname}"));
+                }
+
                 _currentHitter.BB++;
                 _currentPitcher.BB++;
 
                 if (_bases[0] is not null && _bases[1] is not null && _bases[2] is not null)
                 {
                     // Run scores
-                    Score(_bases[2]);
+                    await Score(_bases[2]);
+
+                    if (_playByPlay)
+                    {
+                        await _notifier.SendEvent(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player} score : {_runsAway} - {_runsHome}"));
+                    }
 
                     // Runners move
                     _bases[2] = null;
@@ -204,7 +248,7 @@ namespace DiamondLegends.BLL.Generators
 
                 _bases[0] = _currentHitter;
 
-                NextHitter();
+                await NextHitter();
             }
             // Ball + 1
             else
@@ -213,11 +257,11 @@ namespace DiamondLegends.BLL.Generators
             }
         }
 
-        private void Strike()
+        private async Task Strike()
         {
             if (_strikes == 2)
             {
-                StrikeOut();
+                await StrikeOut();
             }
             else
             {
@@ -225,23 +269,32 @@ namespace DiamondLegends.BLL.Generators
             }
         }
 
-        private void FoulBall()
+        private async Task FoulBall()
         {
             if (_strikes < 2)
             {
                 _strikes++;
             }
+
+            if (_playByPlay)
+            {
+                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe hors du terrain"));
+            }
         }
 
-        private void HitByPitch()
+        private async Task HitByPitch()
         {
+            if (_playByPlay)
+            {
+                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est touché. Il avance en 1e base."));
+            }
             _currentPitcher.HB++;
 
             // TODO : add HBP to hitter
             if (_bases[0] is not null && _bases[1] is not null && _bases[2] is not null)
             {
                 // Run scores
-                Score(_bases[2]);
+                await Score(_bases[2]);
 
                 // Runners move
                 _bases[2] = null;
@@ -265,7 +318,7 @@ namespace DiamondLegends.BLL.Generators
             NextHitter();
         }
 
-        private void BallInPlay()
+        private async Task BallInPlay()
         {
             /*
              * According to ChatGPT
@@ -278,19 +331,19 @@ namespace DiamondLegends.BLL.Generators
 
             if (randomHit <= 35)
             {
-                FlyBall();
+                await FlyBall();
             }
             else if (randomHit >= 36 && randomHit <= 79)
             {
-                GroundBall();
+                await GroundBall();
             }
             else
             {
-                LineDrive();
+                await LineDrive();
             }
         }
 
-        public void FlyBall()
+        public async Task FlyBall()
         {
             //Fly Balls :
 
@@ -305,27 +358,27 @@ namespace DiamondLegends.BLL.Generators
 
             if (randomFly <= 16)
             {
-                SingleHit();
+                await SingleHit();
             }
             else if (randomFly >= 17 && randomFly <= 36)
             {
-                DoubleHit();
+                await DoubleHit();
             }
             else if (randomFly >= 37 && randomFly <= 38)
             {
-                TripleHit();
+                await TripleHit();
             }
             else if (randomFly >= 39 && randomFly <= 54)
             {
-                Homerun();
+                await Homerun();
             }
             else
             {
-                FlyOut();
+                await FlyOut();
             }
         }
 
-        private void GroundBall()
+        private async Task GroundBall()
         {
             //Ground Balls:
 
@@ -340,23 +393,23 @@ namespace DiamondLegends.BLL.Generators
 
             if (randomGround <= 23)
             {
-                SingleHit();
+                await SingleHit();
             }
             else if (randomGround >= 24 && randomGround <= 27)
             {
-                DoubleHit();
+                await DoubleHit();
             }
             else if (randomGround >= 28 && randomGround <= 29)
             {
-                TripleHit();
+                await TripleHit();
             }
             else
             {
-                GroundOut();
+                await GroundOut();
             }
         }
 
-        private void LineDrive()
+        private async Task LineDrive()
         {
             //Line Drives:
 
@@ -371,28 +424,33 @@ namespace DiamondLegends.BLL.Generators
 
             if (randomLine <= 65)
             {
-                SingleLine();
+                await SingleLine();
             }
             else if (randomLine >= 66 && randomLine <= 86)
             {
-                DoubleLine();
+                await DoubleLine();
             }
             else if (randomLine >= 87 && randomLine <= 89)
             {
-                TripleLine();
+                await TripleLine();
             }
             else if (randomLine >= 90 && randomLine <= 95)
             {
-                Homerun();
+                await Homerun();
             }
             else
             {
-                LineOut();
+                await LineOut();
             }
         }
 
-        private void StrikeOut()
+        private async Task StrikeOut()
         {
+            if (_playByPlay)
+            {
+                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est strike out : {_nbOuts} out{(_nbOuts > 1 ? "s" : "")}"));
+            }
+
             _currentHitter.SO++;
             _currentHitter.AB++;
 
@@ -400,22 +458,27 @@ namespace DiamondLegends.BLL.Generators
 
             if (_nbOuts < 2)
             {
-                NextHitter();
+                await NextHitter();
             }
 
             _nbOuts++;
         }
 
-        private void SingleHit()
+        private async Task SingleHit()
         {
             _currentHitter.H++;
             _currentPitcher.H++;
+
+            if (_playByPlay)
+            {
+                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un simple !"));
+            }
 
             _currentHits++;
 
             if (_bases[2] is not null)
             {
-                Score(_bases[2]);
+                await Score(_bases[2]);
 
                 _bases[2] = null;
             }
@@ -432,10 +495,10 @@ namespace DiamondLegends.BLL.Generators
 
             _bases[0] = _currentHitter;
 
-            NextHitter();
+            await NextHitter();
         }
 
-        private void DoubleHit()
+        private async Task DoubleHit()
         {
             _currentHitter.Double++;
             _currentPitcher.H++;
@@ -444,14 +507,14 @@ namespace DiamondLegends.BLL.Generators
 
             if (_bases[2] is not null)
             {
-                Score(_bases[2]);
+                await Score(_bases[2]);
 
                 _bases[2] = null;
             }
 
             if (_bases[1] is not null)
             {
-                Score(_bases[1]);
+                await Score(_bases[1]);
 
                 _bases[1] = null;
             }
@@ -463,10 +526,10 @@ namespace DiamondLegends.BLL.Generators
 
             _bases[1] = _currentHitter;
 
-            NextHitter();
+            await NextHitter();
         }
 
-        private void TripleHit()
+        private async Task TripleHit()
         {
             _currentHitter.Triple++;
             _currentPitcher.H++;
@@ -475,38 +538,38 @@ namespace DiamondLegends.BLL.Generators
 
             if (_bases[2] is not null)
             {
-                Score(_bases[2]);
+                await Score(_bases[2]);
 
                 _bases[2] = null;
             }
 
             if (_bases[1] is not null)
             {
-                Score(_bases[1]);
+                await Score(_bases[1]);
 
                 _bases[1] = null;
             }
 
             if (_bases[0] is not null)
             {
-                Score(_bases[0]);
+                await Score(_bases[0]);
 
                 _bases[0] = null;
             }
 
             _bases[2] = _currentHitter;
 
-            NextHitter();
+            await NextHitter();
         }
 
-        private void FlyOut()
+        private async Task FlyOut()
         {
             if (_nbOuts < 2)
             {
                 // Sac Fly
                 if (_bases[2] is not null)
                 {
-                    Score(_bases[2]);
+                    await Score(_bases[2]);
                 }
             }
 
@@ -514,11 +577,11 @@ namespace DiamondLegends.BLL.Generators
 
             if (_nbOuts < 3)
             {
-                NextHitter();
+                await NextHitter();
             }
         }
 
-        private void GroundOut()
+        private async Task GroundOut()
         {
             if (_nbOuts < 2)
             {
@@ -531,6 +594,11 @@ namespace DiamondLegends.BLL.Generators
                     {
                         _bases[0] = null;
                         _nbOuts++;
+
+                        if (_playByPlay)
+                        {
+                            await _notifier.SendEvent(CreateGameEvent("Un double jeu est tourné ! Wouaw !!!!"));
+                        }
                     }
                 }
             }
@@ -539,11 +607,11 @@ namespace DiamondLegends.BLL.Generators
 
             if (_nbOuts < 3)
             {
-                NextHitter();
+                await NextHitter();
             }
         }
 
-        private void SingleLine()
+        private async Task SingleLine()
         {
             _currentHitter.H++;
             _currentPitcher.H++;
@@ -552,14 +620,14 @@ namespace DiamondLegends.BLL.Generators
 
             if (_bases[2] is not null)
             {
-                Score(_bases[2]);
+                await Score(_bases[2]);
 
                 _bases[2] = null;
             }
 
             if (_bases[1] is not null)
             {
-                Score(_bases[1]);
+                await Score(_bases[1]);
 
                 _bases[1] = null;
             }
@@ -571,11 +639,11 @@ namespace DiamondLegends.BLL.Generators
 
             _bases[0] = _currentHitter;
 
-            NextHitter();
+            await NextHitter();
 
         }
 
-        private void DoubleLine()
+        private async Task DoubleLine()
         {
             _currentHitter.Double++;
             _currentPitcher.H++;
@@ -584,31 +652,31 @@ namespace DiamondLegends.BLL.Generators
 
             if (_bases[2] is not null)
             {
-                Score(_bases[2]);
+                await Score(_bases[2]);
 
                 _bases[2] = null;
             }
 
             if (_bases[1] is not null)
             {
-                Score(_bases[1]);
+                await Score(_bases[1]);
 
                 _bases[1] = null;
             }
 
             if (_bases[0] is not null)
             {
-                Score(_bases[0]);
+                await Score(_bases[0]);
 
                 _bases[0] = null;
             }
 
             _bases[1] = _currentHitter;
 
-            NextHitter();
+            await NextHitter();
         }
 
-        private void TripleLine()
+        private async Task TripleLine()
         {
             _currentHitter.Triple++;
             _currentPitcher.H++;
@@ -617,31 +685,31 @@ namespace DiamondLegends.BLL.Generators
 
             if (_bases[2] is not null)
             {
-                Score(_bases[2]);
+                await Score(_bases[2]);
 
                 _bases[2] = null;
             }
 
             if (_bases[1] is not null)
             {
-                Score(_bases[1]);
+                await Score(_bases[1]);
 
                 _bases[1] = null;
             }
 
             if (_bases[0] is not null)
             {
-                Score(_bases[0]);
+                await Score(_bases[0]);
 
                 _bases[0] = null;
             }
 
             _bases[2] = _currentHitter;
 
-            NextHitter();
+            await NextHitter();
         }
 
-        private void LineOut()
+        private async Task LineOut()
         {
             if (_nbOuts < 2)
             {
@@ -681,11 +749,11 @@ namespace DiamondLegends.BLL.Generators
 
             if (_nbOuts < 3)
             {
-                NextHitter();
+                await NextHitter();
             }
         }
 
-        private void Homerun()
+        private async Task Homerun()
         {
             _currentHitter.HR++;
             _currentHitter.H++;
@@ -696,31 +764,31 @@ namespace DiamondLegends.BLL.Generators
 
             if (_bases[2] is not null)
             {
-                Score(_bases[2]);
+                await Score(_bases[2]);
 
                 _bases[2] = null;
             }
 
             if (_bases[1] is not null)
             {
-                Score(_bases[1]);
+                await Score(_bases[1]);
 
                 _bases[1] = null;
             }
 
             if (_bases[0] is not null)
             {
-                Score(_bases[0]);
+                await Score(_bases[0]);
 
                 _bases[0] = null;
             }
 
-            Score(_currentHitter);
+            await Score(_currentHitter);
 
-            NextHitter();
+            await NextHitter();
         }
 
-        private void Score(GameOffensiveStats scorer)
+        private async Task Score(GameOffensiveStats scorer)
         {
 
             _currentRuns++;
@@ -728,30 +796,40 @@ namespace DiamondLegends.BLL.Generators
             _currentPitcher.R++;
             scorer.R++;
 
-            if (isWalkOff())
+            if (_playByPlay)
+            {
+                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} score : {_runsAway} - {_runsHome}"));
+            }
+
+            if (await isWalkOff())
             {
                 _gameOver = true;
             }
         }
 
-        private void ResetCount()
+        private async Task ResetCount()
         {
             _balls = 0;
             _strikes = 0;
         }
 
-        private bool isWalkOff()
+        private async Task<bool> isWalkOff()
 
         {
             if (_offense == _homeLineUp && _halfInnings >= 16 && _runsHome > _runsAway)
             {
+                if (_playByPlay)
+                {
+                    await _notifier.SendEvent(CreateGameEvent($"{_game.Home.Name} remporte la partie : {_runsAway} - {_runsHome}"));
+                }
+
                 return true;
             }
 
             return false;
         }
 
-        private void ChangeField()
+        private async Task ChangeField()
         {
             _currentPitcher.IP++;
 
@@ -764,7 +842,7 @@ namespace DiamondLegends.BLL.Generators
             }
             else
             {
-                ResetCount();
+                await ResetCount();
 
                 _nbOuts = 0;
                 _bases = [null, null, null];
@@ -814,9 +892,9 @@ namespace DiamondLegends.BLL.Generators
                 }
 
                 (_offense, _defense) = (_defense, _offense);
-                
+
                 // Check if last home offense is necessary
-                if(isWalkOff())
+                if (await isWalkOff())
                 {
                     _gameOver = true;
                 }
@@ -851,6 +929,20 @@ namespace DiamondLegends.BLL.Generators
             _currentPitcher.CG = _currentPitcher.IP == 9 ? 1 : 0;
         }
         #endregion
+
+        private GameEvent CreateGameEvent(string message)
+        {
+            return new GameEvent()
+            {
+                Message = message,
+                HalfInnings = _halfInnings,
+                Outs = _nbOuts,
+                Strikes = _strikes,
+                Balls = _balls,
+                RunsAway = (_offense == _awayLineUp ? _runsAway + _currentRuns : _runsAway),
+                RunsHome = (_offense == _homeLineUp ? _runsHome + _currentRuns : _runsHome)
+            };
+        }
     }
 }
 

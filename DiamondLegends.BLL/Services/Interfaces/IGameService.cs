@@ -6,6 +6,6 @@ namespace DiamondLegends.BLL.Services.Interfaces
     {
         public Task<Game> GetById(int id);
         public Task<List<Game>> GetAll(GameQuery? query = null);
-        public Task<Game> Play(int id, GameLineUp lineUp);
+        public Task<Game> Play(int id, GameLineUp lineUp, bool playByPlay = false);
     }
 }

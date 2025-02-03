@@ -1,7 +1,7 @@
 ﻿using DiamondLegends.BLL.Generators;
 using DiamondLegends.BLL.Generators.Interfaces;
 using DiamondLegends.BLL.Services.Interfaces;
-using DiamondLegends.DAL.Interfaces;
+using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Models;
 
 namespace DiamondLegends.BLL.Services
@@ -12,13 +12,15 @@ namespace DiamondLegends.BLL.Services
         private readonly IPlayerRepository _playerRepository;
         private readonly ITeamRepository _teamRepository;
         private readonly ILineUpGenerator _lineUpGenerator;
+        private readonly IPlayByPlayNotifier _notifier;
 
-        public GameService(IGameRepository gameRepository, IPlayerRepository playerRepository, ITeamRepository teamRepository, ILineUpGenerator lineUpGenerator)
+        public GameService(IGameRepository gameRepository, IPlayerRepository playerRepository, ITeamRepository teamRepository, ILineUpGenerator lineUpGenerator, IPlayByPlayNotifier notifier)
         {
             _gameRepository = gameRepository;
             _playerRepository = playerRepository;
             _teamRepository = teamRepository;
             _lineUpGenerator = lineUpGenerator;
+            _notifier = notifier;
         }
 
         public async Task<Game> GetById(int id)
@@ -69,7 +71,7 @@ namespace DiamondLegends.BLL.Services
             return games;
         }
 
-        public async Task<Game> Play(int id, GameLineUp lineUp)
+        public async Task<Game> Play(int id, GameLineUp lineUp, bool playByPlay = false)
         {
             Game? game = await _gameRepository.GetById(id);
 
@@ -127,7 +129,7 @@ namespace DiamondLegends.BLL.Services
             GamePitchingStats opponentStartingPitcher = await _lineUpGenerator.GenerateStartingPitcher(opponent, game);
 
             // Simulate Game
-            GameSimulator simulation = new GameSimulator(game, offensiveLineUp, startingPitcher, opponentLineUp, opponentStartingPitcher, _gameRepository);
+            GameSimulator simulation = new GameSimulator(game, offensiveLineUp, startingPitcher, opponentLineUp, opponentStartingPitcher, playByPlay, _gameRepository, _notifier);
             game = await simulation.Simulate();
 
             // return Game with stats
