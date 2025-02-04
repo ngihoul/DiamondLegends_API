@@ -12,15 +12,13 @@ namespace DiamondLegends.BLL.Services
         private readonly IPlayerRepository _playerRepository;
         private readonly ITeamRepository _teamRepository;
         private readonly ILineUpGenerator _lineUpGenerator;
-        private readonly IPlayByPlayNotifier _notifier;
 
-        public GameService(IGameRepository gameRepository, IPlayerRepository playerRepository, ITeamRepository teamRepository, ILineUpGenerator lineUpGenerator, IPlayByPlayNotifier notifier)
+        public GameService(IGameRepository gameRepository, IPlayerRepository playerRepository, ITeamRepository teamRepository, ILineUpGenerator lineUpGenerator)
         {
             _gameRepository = gameRepository;
             _playerRepository = playerRepository;
             _teamRepository = teamRepository;
             _lineUpGenerator = lineUpGenerator;
-            _notifier = notifier;
         }
 
         public async Task<Game> GetById(int id)
@@ -100,18 +98,17 @@ namespace DiamondLegends.BLL.Services
             // Offensive lineup
             List<GameOffensiveStats> offensiveLineUp = new List<GameOffensiveStats>();
 
-            foreach (GameLineUpDetails details in lineUp.LineUpDetails) { 
-                if(details.Order < 10)
+            foreach (GameLineUpDetail detail in lineUp.LineUpDetails) { 
+                if(detail.Order < 10)
                 {
                     offensiveLineUp.Add(new GameOffensiveStats()
                     {
                         Game = game,
-                        Player = await _playerRepository.GetById(details.PlayerId),
-                        Position = details.Position,
-                        Order = details.Order,
+                        Player = await _playerRepository.GetById(detail.PlayerId),
+                        Position = detail.Position,
+                        Order = detail.Order,
                     });
                 }
-                
             }
 
             // Generate lineUp for opponent
@@ -129,7 +126,7 @@ namespace DiamondLegends.BLL.Services
             GamePitchingStats opponentStartingPitcher = await _lineUpGenerator.GenerateStartingPitcher(opponent, game);
 
             // Simulate Game
-            GameSimulator simulation = new GameSimulator(game, offensiveLineUp, startingPitcher, opponentLineUp, opponentStartingPitcher, playByPlay, _gameRepository, _notifier);
+            GameSimulator simulation = new GameSimulator(game, offensiveLineUp, startingPitcher, opponentLineUp, opponentStartingPitcher, playByPlay, _gameRepository);
             game = await simulation.Simulate();
 
             // return Game with stats

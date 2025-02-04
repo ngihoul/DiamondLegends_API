@@ -12,7 +12,6 @@ using DiamondLegends.BLL.Services.Interfaces;
 using DiamondLegends.BLL.Generators.Interfaces;
 using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.API.Hubs;
-using DiamondLegends.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,8 +77,6 @@ builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IOffensiveStatsRepository, OffensiveStatsRepository>();
 
 builder.Services.AddScoped<IPitchingStatsRepository, PitchingStatsRepository>();
-
-builder.Services.AddScoped<IPlayByPlayNotifier, PlayByPlayNotifier>();
 
 builder.Services.AddScoped<LeagueNameGenerator>();
 builder.Services.AddScoped<TeamGenerator>();
@@ -170,7 +167,6 @@ app.Use(async (context, next) =>
     }
 });
 
-app.UseWebSockets();
 app.MapHub<PlayByPlayHub>("playbyplayhub");
 
 app.MapControllers();

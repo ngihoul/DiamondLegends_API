@@ -36,10 +36,15 @@ namespace DiamondLegends.Domain.Models
 
     public class GameLineUp
     {
-        public List<GameLineUpDetails> LineUpDetails { get; set; }
+        public List<GameLineUpDetail> LineUpDetails { get; set; }
     }
 
-    public class GameLineUpDetails
+    public class GameLineUpWithGameId : GameLineUp
+    {
+        public int GameId { get; set; }
+    }
+
+    public class GameLineUpDetail
     {
         public int PlayerId { get; set; }
         public int Order { get; set; }
@@ -48,12 +53,13 @@ namespace DiamondLegends.Domain.Models
 
     public class GameEvent
     {
-        
         public string Message { get; set; } 
         public int Outs { get; set; } 
         public int Strikes { get; set; } 
         public int Balls { get; set; } 
         public int HalfInnings { get; set; } 
         public int RunsAway { get; set; } 
-        public int RunsHome { get; set; }    }
+        public int RunsHome { get; set; }
+        public GameOffensiveStats?[] Bases { get; set; } = { null, null, null };
+    }
 }

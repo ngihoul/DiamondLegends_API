@@ -1,6 +1,7 @@
 ﻿using DiamondLegends.BLL.Services.Interfaces;
 using DiamondLegends.DAL.Repositories.Interfaces;
 using DiamondLegends.Domain.Models;
+using System.Collections.ObjectModel;
 
 namespace DiamondLegends.BLL.Generators
 {
@@ -8,7 +9,6 @@ namespace DiamondLegends.BLL.Generators
     {
         #region Dependencies
         private readonly IGameRepository _gameRepository;
-        private readonly IPlayByPlayNotifier _notifier;
         #endregion
 
         #region Properties
@@ -27,6 +27,8 @@ namespace DiamondLegends.BLL.Generators
         private int _currentHits = 0;
         private int _hitsAway = 0;
         private int _hitsHome = 0;
+
+        private ObservableCollection<GameEvent> _events = new ObservableCollection<GameEvent>();
 
         private Game _game = new Game();
 
@@ -52,11 +54,10 @@ namespace DiamondLegends.BLL.Generators
         #endregion
 
         #region Constructor
-        public GameSimulator(Game game, List<GameOffensiveStats> offensiveLineUp, GamePitchingStats startingPitcher, List<GameOffensiveStats> opponentLineUp, GamePitchingStats opponentStartingPitcher, bool playByPlay, IGameRepository gameRepository, IPlayByPlayNotifier notifier)
+        public GameSimulator(Game game, List<GameOffensiveStats> offensiveLineUp, GamePitchingStats startingPitcher, List<GameOffensiveStats> opponentLineUp, GamePitchingStats opponentStartingPitcher, bool playByPlay, IGameRepository gameRepository)
         {
             // Dependencies
             _gameRepository = gameRepository;
-            _notifier = notifier;
 
             // Game
             _playByPlay = playByPlay;
@@ -95,20 +96,26 @@ namespace DiamondLegends.BLL.Generators
         // 
 
         #region Methods
+        public ObservableCollection<GameEvent> GetEvents()
+        {
+            return _events;
+        }
+
         public async Task<Game> Simulate()
         {
             if (_playByPlay)
             {
-                await _notifier.SendEvent(CreateGameEvent($"Le match entre {_game.Away.Name} et {_game.Home.Name} commence."));
+                _events.Add(CreateGameEvent($"Le match entre {_game.Away.Name} et {_game.Home.Name} commence."));
             }
 
             while (!_gameOver)
             {
                 while (_nbOuts < 3 && !_gameOver)
                 {
+                    
                     await Pitch();
 
-                    if (_playByPlay)
+                    if(_playByPlay)
                     {
                         await Task.Delay(3000);
                     }
@@ -135,7 +142,7 @@ namespace DiamondLegends.BLL.Generators
 
             if (_playByPlay)
             {
-                await _notifier.SendEvent(CreateGameEvent($"Le match entre {_game.Away.Name} et {_game.Home.Name} se termine. Victoire de {(_runsHome > _runsAway ? _game.Home.Name : _game.Away.Name)} sur un score de {_runsAway} - {_runsHome} !"));
+               _events.Add(CreateGameEvent($"Le match entre {_game.Away.Name} et {_game.Home.Name} se termine. Victoire de {(_runsHome > _runsAway ? _game.Home.Name : _game.Away.Name)} sur un score de {_runsAway} - {_runsHome} !"));
             }
 
             return _game;
@@ -172,8 +179,7 @@ namespace DiamondLegends.BLL.Generators
 
             if (_playByPlay)
             {
-                Console.WriteLine("Un pitch !");
-                await _notifier.SendEvent(CreateGameEvent($"{_currentPitcher.Player.Firstname.Substring(0, 1)}. {_currentPitcher.Player.Lastname} lance ..."));
+                _events.Add(CreateGameEvent($"{_currentPitcher.Player.Firstname.Substring(0, 1)}. {_currentPitcher.Player.Lastname} lance ..."));
             }
 
             _currentPitcher.NP++;
@@ -181,7 +187,6 @@ namespace DiamondLegends.BLL.Generators
             if (randomPitch < 43)
             {
                 await Ball();
-
             }
             else if (randomPitch >= 44 && randomPitch <= 77)
             {
@@ -203,17 +208,12 @@ namespace DiamondLegends.BLL.Generators
 
         private async Task Ball()
         {
-            if (_playByPlay)
-            {
-                await _notifier.SendEvent(CreateGameEvent($"Ball"));
-            }
-
             // Base on balls
             if (_balls == 3)
             {
                 if (_playByPlay)
                 {
-                    await _notifier.SendEvent(CreateGameEvent($"Base on balls pour {_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname}"));
+                    _events.Add(CreateGameEvent($"Base on balls pour {_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname}. Il avance en 1e base."));
                 }
 
                 _currentHitter.BB++;
@@ -224,26 +224,48 @@ namespace DiamondLegends.BLL.Generators
                     // Run scores
                     await Score(_bases[2]);
 
-                    if (_playByPlay)
-                    {
-                        await _notifier.SendEvent(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player} score : {_runsAway} - {_runsHome}"));
-                    }
-
                     // Runners move
                     _bases[2] = null;
                     _bases[2] = _bases[1];
+
+                    if (_playByPlay)
+                    {
+                        _events.Add(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player.Lastname} avance en 3e base."));
+                    }
+
                     _bases[1] = _bases[0];
+
+                    if (_playByPlay)
+                    {
+                        _events.Add(CreateGameEvent($"{_bases[0].Player.Firstname.Substring(0, 1)} {_bases[0].Player.Lastname} avance en 2e base."));
+                    }
                 }
                 else if (_bases[0] is not null && _bases[1] is not null)
                 {
                     // Runners move
                     _bases[2] = _bases[1];
+
+                    if (_playByPlay)
+                    {
+                        _events.Add(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player.Lastname} avance en 3e base."));
+                    }
+
                     _bases[1] = _bases[0];
+
+                    if (_playByPlay)
+                    {
+                        _events.Add(CreateGameEvent($"{_bases[0].Player.Firstname.Substring(0, 1)} {_bases[0].Player.Lastname} avance en 2e base."));
+                    }
                 }
                 else if (_bases[0] is not null)
                 {
                     // Runners move
                     _bases[1] = _bases[0];
+
+                    if (_playByPlay)
+                    {
+                        _events.Add(CreateGameEvent($"{_bases[0].Player.Firstname.Substring(0, 1)} {_bases[0].Player.Lastname} avance en 2e base."));
+                    }
                 }
 
                 _bases[0] = _currentHitter;
@@ -254,6 +276,11 @@ namespace DiamondLegends.BLL.Generators
             else
             {
                 _balls++;
+
+                if(_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"Ball {_balls} !"));
+                }
             }
         }
 
@@ -266,6 +293,11 @@ namespace DiamondLegends.BLL.Generators
             else
             {
                 _strikes++;
+
+                if(_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"Strike {_strikes}"));
+                }
             }
         }
 
@@ -278,7 +310,7 @@ namespace DiamondLegends.BLL.Generators
 
             if (_playByPlay)
             {
-                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe hors du terrain"));
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe en fausse balle."));
             }
         }
 
@@ -286,8 +318,9 @@ namespace DiamondLegends.BLL.Generators
         {
             if (_playByPlay)
             {
-                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est touché. Il avance en 1e base."));
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est touché. Il avance en 1e base."));
             }
+
             _currentPitcher.HB++;
 
             // TODO : add HBP to hitter
@@ -299,23 +332,50 @@ namespace DiamondLegends.BLL.Generators
                 // Runners move
                 _bases[2] = null;
                 _bases[2] = _bases[1];
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player.Lastname} avance en 3e base."));
+                }
+
                 _bases[1] = _bases[0];
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[1].Player.Firstname.Substring(0, 1)} {_bases[1].Player.Lastname} avance en 2e base."));
+                }
             }
             else if (_bases[0] is not null && _bases[1] is not null)
             {
                 // Runners move
                 _bases[2] = _bases[1];
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player.Lastname} avance en 3e base."));
+                }
+
                 _bases[1] = _bases[0];
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[1].Player.Firstname.Substring(0, 1)} {_bases[1].Player.Lastname} avance en 2e base."));
+                }
             }
             else if (_bases[0] is not null)
             {
                 // Runners move
                 _bases[1] = _bases[0];
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[1].Player.Firstname.Substring(0, 1)} {_bases[1].Player.Lastname} avance en 2e base."));
+                }
             }
 
             _bases[0] = _currentHitter;
 
-            NextHitter();
+            await NextHitter();
         }
 
         private async Task BallInPlay()
@@ -356,6 +416,11 @@ namespace DiamondLegends.BLL.Generators
 
             int randomFly = Random.Shared.Next(0, 101);
 
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe en l'air ..."));
+            }
+
             if (randomFly <= 16)
             {
                 await SingleHit();
@@ -389,6 +454,11 @@ namespace DiamondLegends.BLL.Generators
 
             _currentHitter.AB++;
 
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe au sol ..."));
+            }
+
             int randomGround = Random.Shared.Next(0, 101);
 
             if (randomGround <= 23)
@@ -420,6 +490,11 @@ namespace DiamondLegends.BLL.Generators
 
             _currentHitter.AB++;
 
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe une line drive ..."));
+            }
+
             int randomLine = Random.Shared.Next(0, 101);
 
             if (randomLine <= 65)
@@ -446,15 +521,15 @@ namespace DiamondLegends.BLL.Generators
 
         private async Task StrikeOut()
         {
-            if (_playByPlay)
-            {
-                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est strike out : {_nbOuts} out{(_nbOuts > 1 ? "s" : "")}"));
-            }
-
             _currentHitter.SO++;
             _currentHitter.AB++;
 
             _currentPitcher.SO++;
+
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est strike out : {_nbOuts + 1} out{(_nbOuts + 1 > 1 ? "s" : "")}"));
+            }
 
             if (_nbOuts < 2)
             {
@@ -471,7 +546,7 @@ namespace DiamondLegends.BLL.Generators
 
             if (_playByPlay)
             {
-                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un simple !"));
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un simple !"));
             }
 
             _currentHits++;
@@ -486,11 +561,21 @@ namespace DiamondLegends.BLL.Generators
             if (_bases[1] is not null)
             {
                 _bases[2] = _bases[1];
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player.Lastname} avance en 3e base."));
+                }
             }
 
             if (_bases[0] is not null)
             {
                 _bases[1] = _bases[0];
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[1].Player.Firstname.Substring(0, 1)} {_bases[1].Player.Lastname} avance en 2e base."));
+                }
             }
 
             _bases[0] = _currentHitter;
@@ -502,6 +587,11 @@ namespace DiamondLegends.BLL.Generators
         {
             _currentHitter.Double++;
             _currentPitcher.H++;
+
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un double. Il avance en 2e base."));
+            }
 
             _currentHits++;
 
@@ -522,6 +612,12 @@ namespace DiamondLegends.BLL.Generators
             if (_bases[0] is not null)
             {
                 _bases[2] = _bases[0];
+                _bases[0] = null;
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player.Lastname} avance en 3e base."));
+                }
             }
 
             _bases[1] = _currentHitter;
@@ -535,6 +631,11 @@ namespace DiamondLegends.BLL.Generators
             _currentPitcher.H++;
 
             _currentHits++;
+
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un triple. Il avance en 3e base."));
+            }
 
             if (_bases[2] is not null)
             {
@@ -564,12 +665,24 @@ namespace DiamondLegends.BLL.Generators
 
         private async Task FlyOut()
         {
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"La balle est attrapée en l'air. {_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est éliminé."));
+            }
+
             if (_nbOuts < 2)
             {
                 // Sac Fly
                 if (_bases[2] is not null)
                 {
+                    if (_playByPlay)
+                    {
+                        _events.Add(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player.Lastname} tente sa chance et cours vers la marbre ..."));
+                    }
+
                     await Score(_bases[2]);
+
+                    _bases[2] = null;
                 }
             }
 
@@ -583,6 +696,8 @@ namespace DiamondLegends.BLL.Generators
 
         private async Task GroundOut()
         {
+            bool isDoublePlay = false;
+
             if (_nbOuts < 2)
             {
                 // Double play : 10 à 15%
@@ -597,13 +712,23 @@ namespace DiamondLegends.BLL.Generators
 
                         if (_playByPlay)
                         {
-                            await _notifier.SendEvent(CreateGameEvent("Un double jeu est tourné ! Wouaw !!!!"));
+                            _events.Add(CreateGameEvent("Un double jeu est tourné ! Wouaw !!!!"));
                         }
+
+                        isDoublePlay = true;
                     }
                 }
             }
 
             _nbOuts++;
+
+            if(!isDoublePlay && _playByPlay)
+            {
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est éliminé en 1e base."));
+                }
+            }
 
             if (_nbOuts < 3)
             {
@@ -615,6 +740,11 @@ namespace DiamondLegends.BLL.Generators
         {
             _currentHitter.H++;
             _currentPitcher.H++;
+
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un simple. Il avance en 1e base."));
+            }
 
             _currentHits++;
 
@@ -635,6 +765,11 @@ namespace DiamondLegends.BLL.Generators
             if (_bases[0] is not null)
             {
                 _bases[2] = _bases[0];
+
+                if (_playByPlay)
+                {
+                    _events.Add(CreateGameEvent($"{_bases[2].Player.Firstname.Substring(0, 1)} {_bases[2].Player.Lastname} avance en 3e base."));
+                }
             }
 
             _bases[0] = _currentHitter;
@@ -647,6 +782,11 @@ namespace DiamondLegends.BLL.Generators
         {
             _currentHitter.Double++;
             _currentPitcher.H++;
+
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un double. Il avance en 2e base."));
+            }
 
             _currentHits++;
 
@@ -681,6 +821,11 @@ namespace DiamondLegends.BLL.Generators
             _currentHitter.Triple++;
             _currentPitcher.H++;
 
+            if (_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un triple. Il avance en 3e base."));
+            }
+
             _currentHits++;
 
             if (_bases[2] is not null)
@@ -711,6 +856,8 @@ namespace DiamondLegends.BLL.Generators
 
         private async Task LineOut()
         {
+            bool isDoublePlay = false;
+
             if (_nbOuts < 2)
             {
                 // Double play : 5 a 10%
@@ -724,6 +871,7 @@ namespace DiamondLegends.BLL.Generators
                         {
                             _bases[0] = null;
                             _nbOuts++;
+                            isDoublePlay = true;
                         }
                     }
                     else if (_bases[1] is not null)
@@ -732,6 +880,7 @@ namespace DiamondLegends.BLL.Generators
                         {
                             _bases[1] = null;
                             _nbOuts++;
+                            isDoublePlay = true;
                         }
                     }
                     else if (_bases[2] is not null)
@@ -740,7 +889,22 @@ namespace DiamondLegends.BLL.Generators
                         {
                             _bases[2] = null;
                             _nbOuts++;
+                            isDoublePlay = true;
                         }
+                    }
+                }
+            }
+
+            if(_playByPlay)
+            {
+                if(!isDoublePlay)
+                {
+                    if (_playByPlay)
+                    {
+                        _events.Add(CreateGameEvent($"La balle est rattrapée au vol. {_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} est éliminé."));
+                    } else
+                    {
+                        _events.Add(CreateGameEvent($"Un double jeu est tourné ! Wouawww !!!"));
                     }
                 }
             }
@@ -759,6 +923,11 @@ namespace DiamondLegends.BLL.Generators
             _currentHitter.H++;
 
             _currentPitcher.HR++;
+
+            if(_playByPlay)
+            {
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} frappe un homerun !!!"));
+            }
 
             _currentHits++;
 
@@ -798,7 +967,7 @@ namespace DiamondLegends.BLL.Generators
 
             if (_playByPlay)
             {
-                await _notifier.SendEvent(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} score : {_runsAway} - {_runsHome}"));
+                _events.Add(CreateGameEvent($"{_currentHitter.Player.Firstname.Substring(0, 1)} {_currentHitter.Player.Lastname} score !"));
             }
 
             if (await isWalkOff())
@@ -814,13 +983,13 @@ namespace DiamondLegends.BLL.Generators
         }
 
         private async Task<bool> isWalkOff()
-
         {
+            // TODO : to be corrected because _runsHome et _runsAway are updated only when changefield()
             if (_offense == _homeLineUp && _halfInnings >= 16 && _runsHome > _runsAway)
             {
                 if (_playByPlay)
                 {
-                    await _notifier.SendEvent(CreateGameEvent($"{_game.Home.Name} remporte la partie : {_runsAway} - {_runsHome}"));
+                    _events.Add(CreateGameEvent($"{_game.Home.Name} remporte la partie : {_runsAway} - {_runsHome}"));
                 }
 
                 return true;
@@ -898,6 +1067,11 @@ namespace DiamondLegends.BLL.Generators
                 {
                     _gameOver = true;
                 }
+
+                if(_playByPlay && !await isWalkOff())
+                {
+                    _events.Add(CreateGameEvent($"3 éliminés ! Changefield !"));
+                }
             }
         }
 
@@ -940,7 +1114,8 @@ namespace DiamondLegends.BLL.Generators
                 Strikes = _strikes,
                 Balls = _balls,
                 RunsAway = (_offense == _awayLineUp ? _runsAway + _currentRuns : _runsAway),
-                RunsHome = (_offense == _homeLineUp ? _runsHome + _currentRuns : _runsHome)
+                RunsHome = (_offense == _homeLineUp ? _runsHome + _currentRuns : _runsHome),
+                Bases = _bases
             };
         }
     }
